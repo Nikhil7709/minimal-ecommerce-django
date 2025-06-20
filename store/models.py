@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from store.abstract import AbstractAuditCreator, AbstractAuditUpdater 
+from store import STATUSCHOICES
 
 # Create your models here.
 
@@ -67,7 +68,6 @@ class Category(AbstractAuditCreator, AbstractAuditUpdater):
     class Meta:
         verbose_name = "Category"
         verbose_name_plural = "2. Categories"
-
 
 
 class Product(AbstractAuditCreator, AbstractAuditUpdater):
@@ -145,3 +145,30 @@ class CartItem(models.Model, AbstractAuditCreator, AbstractAuditUpdater):
         verbose_name_plural = "5. Cart Items"
 
 
+class Order(AbstractAuditCreator, AbstractAuditUpdater):
+    """
+    Represents an order placed by a user with total amount and status.
+    """
+    total_amount = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=STATUSCHOICES.choices,
+        default=STATUSCHOICES.PENDING
+    )
+    ordered_at = models.DateTimeField(auto_now_add=True)
+
+    # F.Ks
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)s_user"
+    )
+
+    def __str__(self):
+        return f"{self.user} - {self.status}"
+
+    class Meta:
+        verbose_name = "Order"
+        verbose_name_plural = "6. Orders"
