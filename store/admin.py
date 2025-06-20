@@ -1,6 +1,6 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
-from store.models import Cart, CartItem, Category, Product, User
+from store.models import Cart, CartItem, Category, Order, Product, User
 
 # Register your models here.
 
@@ -45,4 +45,14 @@ class CartItemAdmin(ImportExportModelAdmin):
     list_filter = ["product"]
     readonly_fields = ["created_by", "updated_by"]
     save_as = True
+
+
+@admin.register(Order)
+class (ImportExportModelAdmin):
+    list_display = ["id", "user", "total_amount", "status", "ordered_at"]
+    search_fields = ["user__email", "user__name"]
+    list_filter = ["status"]
+    readonly_fields = ["created_by", "updated_by"]
+    save_as = True
+
 
