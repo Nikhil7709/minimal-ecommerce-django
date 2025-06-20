@@ -1,6 +1,6 @@
 from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
-from store.models import Category, User
+from store.models import Category, Product, User
 
 # Register your models here.
 
@@ -17,6 +17,15 @@ class UserAdmin(ImportExportModelAdmin):
 class CategoryAdmin(ImportExportModelAdmin):
     list_display = ["id", "name", "slug"]
     search_fields = ["name", "slug"]
+    readonly_fields = ["created_by", "updated_by"]
+    save_as = True
+
+
+@admin.register(Product)
+class ProductAdmin(ImportExportModelAdmin):
+    list_display = ["id", "name", "price", "stock", "category", "created_by"]
+    search_fields = ["name", "description"]
+    list_filter = ["category"]
     readonly_fields = ["created_by", "updated_by"]
     save_as = True
 
