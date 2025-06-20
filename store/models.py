@@ -117,8 +117,7 @@ class Cart(AbstractAuditCreator, AbstractAuditUpdater):
         verbose_name_plural = "4. Carts"
 
 
-
-class CartItem(models.Model, AbstractAuditCreator, AbstractAuditUpdater):
+class CartItem(AbstractAuditCreator, AbstractAuditUpdater):
     """
     Represents a product added to a cart with a specified quantity.
     Each product appears once per cart.
@@ -174,7 +173,7 @@ class Order(AbstractAuditCreator, AbstractAuditUpdater):
         verbose_name_plural = "6. Orders"
 
 
-class OrderItem(models.Model, AbstractAuditCreator, AbstractAuditUpdater):
+class OrderItem(AbstractAuditCreator, AbstractAuditUpdater):
     """
     Line item for an order, referencing product, quantity,
     and price at the time of order.
