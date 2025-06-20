@@ -100,3 +100,20 @@ class Product(AbstractAuditCreator, AbstractAuditUpdater):
         verbose_name_plural = "3. Products"
 
 
+class Cart(AbstractAuditCreator, AbstractAuditUpdater):
+    """
+    Shopping cart assigned to a single user, holds cart items.
+    """
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)s_user"
+    )
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        verbose_name = "Cart"
+        verbose_name_plural = "4. Carts"
+
+
