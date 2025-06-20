@@ -117,3 +117,31 @@ class Cart(AbstractAuditCreator, AbstractAuditUpdater):
         verbose_name_plural = "4. Carts"
 
 
+
+class CartItem(models.Model, AbstractAuditCreator, AbstractAuditUpdater):
+    """
+    Represents a product added to a cart with a specified quantity.
+    Each product appears once per cart.
+    """
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    # F.Ks
+    cart = models.ForeignKey(
+        Cart, on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)s_cart"
+    )
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)s_product"
+    )
+
+    def __str__(self):
+        return f"{self.cart} - {self.product}"
+
+    class Meta:
+        unique_together = ['cart', 'product']
+        verbose_name = "Cart Item"
+        verbose_name_plural = "5. Cart Items"
+
+
