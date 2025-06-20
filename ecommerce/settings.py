@@ -44,7 +44,11 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_APPS = ['rest_framework']
+THIRD_PARTY_APPS = [
+    'rest_framework',
+    'django_extensions',
+    'import_export'
+]
 
 PROJECT_APPS = ['store']
 
