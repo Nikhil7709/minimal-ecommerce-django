@@ -204,5 +204,5 @@ class OrderItem(AbstractAuditCreator, AbstractAuditUpdater):
 
     class Meta:
         verbose_name = "Order Item"
-        verbose_name_plural = "Order Items"
+        verbose_name_plural = "7. Order Items"
 
