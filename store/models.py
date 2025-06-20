@@ -172,3 +172,35 @@ class Order(AbstractAuditCreator, AbstractAuditUpdater):
     class Meta:
         verbose_name = "Order"
         verbose_name_plural = "6. Orders"
+
+
+class OrderItem(models.Model, AbstractAuditCreator, AbstractAuditUpdater):
+    """
+    Line item for an order, referencing product, quantity,
+    and price at the time of order.
+    """
+
+    quantity = models.PositiveIntegerField()
+    price_at_order_time = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2
+    )
+
+    # F.Ks
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)s_order"
+    )
+    product = models.ForeignKey(
+        Product, on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="%(app_label)s_%(class)s_product"
+    )
+
+    def __str__(self):
+        return f"{self.order} - {self.product}"
+
+    class Meta:
+        verbose_name = "Order Item"
+        verbose_name_plural = "Order Items"
+
