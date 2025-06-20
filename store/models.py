@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from store.abstract import AbstractAuditCreator, AbstractAuditUpdater 
 
 # Create your models here.
 
@@ -45,3 +46,24 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = "1. Users"
 
 
+class Category(AbstractAuditCreator, AbstractAuditUpdater):
+    """
+    Represents a product category with a unique slug.
+    Used to classify and group products.
+    """
+
+    name = models.CharField(
+        max_length=128, 
+        unique=True
+    )
+    slug = models.SlugField(
+        unique=True, 
+        blank=True
+    )
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "2. Categories"
