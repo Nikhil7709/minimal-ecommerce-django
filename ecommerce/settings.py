@@ -44,7 +44,11 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_APPS = ['rest_framework']
+THIRD_PARTY_APPS = [
+    'rest_framework',
+    'django_extensions',
+    'import_export'
+]
 
 PROJECT_APPS = ['store']
 
@@ -79,19 +83,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "ecommerce.wsgi.application"
 
+# Custom user model
+AUTH_USER_MODEL = 'store.User'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # PostgreSQL database configuration using environment variables
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': env('DB_NAME'),
+#         'USER': env('DB_USER'),
+#         'PASSWORD': env('DB_PASSWORD'),
+#         'HOST': env('DB_HOST'),
+#         'PORT': env('DB_PORT'),
+#     }
+# }
+
+# SQlite database configuration for development
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
