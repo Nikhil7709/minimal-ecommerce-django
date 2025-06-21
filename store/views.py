@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
-from store.serializers import LoginSerializer, RegisterSerializer
+from store.serializers import LoginSerializer, ProductCreateSerializer, ProductDetailSerializer, RegisterSerializer
 from django.contrib.auth import authenticate
 
 # Create your views here.
@@ -64,6 +64,34 @@ class LoginAPIView(APIView):
                     'error': 'Invalid credentials'
                 },
                 status=status.HTTP_401_UNAUTHORIZED
+            )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class ProductCreateAPIView(APIView):
+    """
+    API view for creating a new product.
+    Handles product creation by validating input data and saving the product.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        # Validate the request data using the ProductCreateSerializer
+        serializer = ProductCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            product = serializer.save()
+            product.created_by = request.user.email
+            product.updated_by = request.user.email
+            product.save()
+            return Response(
+                {
+                    'message': 'Product created successfully',
+                    'product': ProductDetailSerializer(product).data
+                },
+                status=status.HTTP_201_CREATED
             )
         return Response(
             serializer.errors,
