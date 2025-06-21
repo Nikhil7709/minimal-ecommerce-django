@@ -114,3 +114,22 @@ class ProductListAPIView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+class ProductDetailAPIView(APIView):
+    def get(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response(
+                {
+                    'error': 'Product not found'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = ProductDetailSerializer(product)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
