@@ -8,6 +8,9 @@ django = "==5.0"
 djangorestframework = "*"
 psycopg2-binary = "*"
 django-environ = "*"
+django-import-export = "*"
+django-extensions = "*"
+django-shell-plus = "*"
 
 [dev-packages]
 
