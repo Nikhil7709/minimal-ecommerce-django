@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from store.models import User
+from store.models import Product, User
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -16,3 +16,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+
+
+class ProductCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id", "name", "description", "price", "stock", "category"]
