@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from store.models import Product
+from store.permissions import IsAdminOrProductCreator
 from store.serializers import LoginSerializer, ProductCreateSerializer, ProductDetailSerializer, ProductListSerializer, RegisterSerializer
 from django.contrib.auth import authenticate
 
@@ -132,4 +133,48 @@ class ProductDetailAPIView(APIView):
             serializer.data,
             status=status.HTTP_200_OK
         )
+
+
+class ProductUpdateAPIView(APIView):
+    """
+    API view for updating a product.
+    Only the admin or the user who created the product can update it.
+    """
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrProductCreator]
+
+    def put(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response(
+                {
+                    'error': 'Product not found'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        self.check_object_permissions(request, product)
+
+        serializer = ProductCreateSerializer(
+            product, 
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            updated_product = serializer.save()
+            updated_product.updated_by = request.user.email
+            updated_product.save()
+            return Response(
+                {
+                    'message': 'Product updated successfully',
+                    'product': ProductDetailSerializer(updated_product).data
+                },
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 
