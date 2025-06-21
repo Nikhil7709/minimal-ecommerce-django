@@ -6,6 +6,7 @@ from store.views import (
     RegisterAPIView,
     LoginAPIView,
     ProductCreateAPIView,
+    ProductDeleteAPIView,
 )
 
 
@@ -16,4 +17,5 @@ urlpatterns = [
     path('', ProductListAPIView.as_view(), name='product-list'),
     path('<int:pk>/', ProductDetailAPIView.as_view(), name='product-detail'),
     path('product/<int:pk>/update/', ProductUpdateAPIView.as_view(), name='update-product'),
+    path('products/<int:pk>/delete/', ProductDeleteAPIView.as_view(), name='product-delete'),
 ]

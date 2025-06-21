@@ -178,3 +178,31 @@ class ProductUpdateAPIView(APIView):
         )
 
 
+class ProductDeleteAPIView(APIView):
+    """
+    API view for deleting a product.
+    Only the admin or the user who created the product can delete it.
+    """
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrProductCreator]
+
+    def delete(self, request, pk):
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response(
+                {
+                    'error': 'Product not found'
+                },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+        self.check_object_permissions(request, product)
+
+        product.delete()
+        return Response(
+            {
+                'message': 'Product deleted successfully'
+            },
+            status=status.HTTP_204_NO_CONTENT
+        )
+
