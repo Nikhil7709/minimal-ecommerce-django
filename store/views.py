@@ -2,7 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
-from store.serializers import LoginSerializer, ProductCreateSerializer, ProductDetailSerializer, RegisterSerializer
+from store.models import Product
+from store.serializers import LoginSerializer, ProductCreateSerializer, ProductDetailSerializer, ProductListSerializer, RegisterSerializer
 from django.contrib.auth import authenticate
 
 # Create your views here.
@@ -96,5 +97,20 @@ class ProductCreateAPIView(APIView):
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class ProductListAPIView(APIView):
+    """
+    API view for listing all products.
+    Retrieves all products from the database and returns them in a serialized format.
+    """
+    def get(self, request):
+        # Retrieve all products and serialize them
+        products = Product.objects.all()
+        serializer = ProductListSerializer(products, many=True)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
         )
 
