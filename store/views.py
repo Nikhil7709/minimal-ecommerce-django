@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
-from store.models import Product
+from store.models import Cart, CartItem, Product
 from store.permissions import IsAdminOrProductCreator
 from store.serializers import LoginSerializer, ProductCreateSerializer, ProductDetailSerializer, ProductListSerializer, RegisterSerializer
 from django.contrib.auth import authenticate
@@ -205,4 +205,93 @@ class ProductDeleteAPIView(APIView):
             },
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+class AddToCartAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, product_id):
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return Response(
+                {
+                    "error": "Product not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        cart, created = Cart.objects.get_or_create(user=request.user)
+
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': 1}
+        )
+
+        if not created:
+            cart_item.quantity += 1
+            cart_item.save()
+
+        return Response(
+            {
+                "message": "Product added to cart successfully"
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class ViewCartAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            cart = Cart.objects.get(user=request.user)
+        except Cart.DoesNotExist:
+            return Response(
+                {
+                    "cart": []
+                },
+                status=status.HTTP_200_OK
+            )
+
+        items = CartItem.objects.filter(cart=cart)
+        data = [
+            {
+                "product": item.product.name,
+                "quantity": item.quantity,
+                "price": item.product.price,
+                "total": item.quantity * item.product.price
+            }
+            for item in items
+        ]
+        return Response(
+            data,
+            status=status.HTTP_200_OK
+        )
+
+
+class RemoveFromCartAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, product_id):
+        try:
+            cart = Cart.objects.get(user=request.user)
+            cart_item = CartItem.objects.get(cart=cart, product_id=product_id)
+        except (Cart.DoesNotExist, CartItem.DoesNotExist):
+            return Response(
+                {
+                    "error": "Item not found in cart"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        cart_item.delete()
+        return Response(
+            {
+                "message": "Item removed from cart"
+            },
+            status=status.HTTP_200_OK
+        )
+
 
