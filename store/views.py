@@ -429,6 +429,38 @@ class CategoryListAPIView(APIView):
         )
         return Response(
             serializer.data,
-            status=200
+            status=status.HTTP_200_OK
+        )
+
+
+class CategoryUpdateAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def put(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response(
+                {
+                    "error": "Category not found"
+                },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+        serializer = CategorySerializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_category = serializer.save()
+            updated_category.updated_by = request.user.email
+            updated_category.save()
+            return Response(
+                {
+                    "message": "Category updated",
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
         )
 

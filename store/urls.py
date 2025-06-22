@@ -13,6 +13,7 @@ from store.views import (
     RemoveFromCartAPIView,
     CreateCategoryAPIView,
     CategoryListAPIView,
+    CategoryUpdateAPIView,
 )
 
 
@@ -33,5 +34,7 @@ urlpatterns = [
 
     path('admin/category/create/', CreateCategoryAPIView.as_view(), name='admin-category-create'),
     path('admin/category/list/', CategoryListAPIView.as_view(), name='admin-category-list'),
+    path('admin/category/update/<int:pk>/', CategoryUpdateAPIView.as_view(), name='admin-category-update'),
+
 
 ]
