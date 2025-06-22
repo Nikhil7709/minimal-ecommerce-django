@@ -240,3 +240,34 @@ class AddToCartAPIView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+class ViewCartAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            cart = Cart.objects.get(user=request.user)
+        except Cart.DoesNotExist:
+            return Response(
+                {
+                    "cart": []
+                },
+                status=status.HTTP_200_OK
+            )
+
+        items = CartItem.objects.filter(cart=cart)
+        data = [
+            {
+                "product": item.product.name,
+                "quantity": item.quantity,
+                "price": item.product.price,
+                "total": item.quantity * item.product.price
+            }
+            for item in items
+        ]
+        return Response(
+            data,
+            status=status.HTTP_200_OK
+        )
+
+
