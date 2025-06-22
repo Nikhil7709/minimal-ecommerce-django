@@ -464,3 +464,26 @@ class CategoryUpdateAPIView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+
+class CategoryDeleteAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def delete(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response(
+                {
+                    "error": "Category not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        category.delete()
+        return Response(
+            {
+                "message": "Category deleted successfully"
+            },
+            status=status.HTTP_204_NO_CONTENT
+        )
+
