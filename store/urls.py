@@ -1,6 +1,7 @@
 from django.urls import path
 from store.views import (
     AddToCartAPIView,
+    PlaceOrderAPIView,
     ProductDetailAPIView,
     ProductListAPIView,
     ProductUpdateAPIView,
@@ -25,4 +26,7 @@ urlpatterns = [
     path('cart/add/<int:product_id>/', AddToCartAPIView.as_view(), name='add-to-cart'),
     path('cart/', ViewCartAPIView.as_view(), name='view-cart'),
     path('cart/remove/<int:product_id>/', RemoveFromCartAPIView.as_view(), name='remove-from-cart'),
+
+    path('order/place/', PlaceOrderAPIView.as_view(), name='place-order'),
+
 ]

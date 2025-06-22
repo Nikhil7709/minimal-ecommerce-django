@@ -2,10 +2,19 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
-from store.models import Cart, CartItem, Product
+from store.models import Cart, CartItem, Order, OrderItem, Product
 from store.permissions import IsAdminOrProductCreator
-from store.serializers import LoginSerializer, ProductCreateSerializer, ProductDetailSerializer, ProductListSerializer, RegisterSerializer
+from store.serializers import (
+    LoginSerializer,
+    ProductCreateSerializer,
+    ProductDetailSerializer,
+    ProductListSerializer,
+    RegisterSerializer,
+)
 from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
+from django.db import transaction
+
 
 # Create your views here.
 
@@ -292,6 +301,92 @@ class RemoveFromCartAPIView(APIView):
                 "message": "Item removed from cart"
             },
             status=status.HTTP_200_OK
+        )
+
+
+class PlaceOrderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request):
+        user = request.user
+
+        try:
+            cart = Cart.objects.get(user=user)
+        except Cart.DoesNotExist:
+            return Response(
+                {
+                    "error": "Cart is empty"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        cart_items = CartItem.objects.filter(cart=cart)
+        if not cart_items.exists():
+            return Response(
+                {
+                    "error": "Cart has no items"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        total_amount = 0
+        order_items_data = []
+
+        # Step 1: Check stock availability
+        for item in cart_items:
+            if item.product.stock < item.quantity:
+                return Response(
+                    {
+                        "error": f"Not enough stock for {item.product.name}. Available: {item.product.stock}"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # Step 2: Create Order
+        order = Order.objects.create(
+            user=user,
+            total_amount=0,  # temporary, will be updated below
+            status="PENDING",
+            created_by=user.email,
+            updated_by=user.email
+        )
+
+        # Step 3: Create OrderItems and deduct stock
+        for item in cart_items:
+            price = item.product.price
+            quantity = item.quantity
+            subtotal = price * quantity
+            total_amount += subtotal
+
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=quantity,
+                price_at_order_time=price,
+                created_by=user.email,
+                updated_by=user.email
+            )
+
+            # Deduct stock
+            item.product.stock -= quantity
+            item.product.save()
+
+        # Update total amount
+        order.total_amount = total_amount
+        order.save()
+
+        # Step 4: Clear cart
+        cart_items.delete()
+
+        return Response(
+            {
+                "message": "Order placed successfully",
+                "order_id": order.id,
+                "total_amount": float(order.total_amount),
+                "status": order.status
+            },
+            status=status.HTTP_201_CREATED
         )
 
 
