@@ -9,6 +9,7 @@ from store.views import (
     ProductCreateAPIView,
     ProductDeleteAPIView,
     ViewCartAPIView,
+    RemoveFromCartAPIView,
 )
 
 
@@ -23,4 +24,5 @@ urlpatterns = [
 
     path('cart/add/<int:product_id>/', AddToCartAPIView.as_view(), name='add-to-cart'),
     path('cart/', ViewCartAPIView.as_view(), name='view-cart'),
+    path('cart/remove/<int:product_id>/', RemoveFromCartAPIView.as_view(), name='remove-from-cart'),
 ]
