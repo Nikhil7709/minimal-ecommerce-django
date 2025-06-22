@@ -8,3 +8,7 @@ class IsAdminOrProductCreator(permissions.BasePermission):
         # Allow access if the user is an admin or the creator of the product
         return request.user.is_admin or obj.created_by == request.user.email
 
+
+class IsAdminUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.is_admin
