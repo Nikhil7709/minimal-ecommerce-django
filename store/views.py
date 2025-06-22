@@ -2,9 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
-from store.models import Cart, CartItem, Order, OrderItem, Product
-from store.permissions import IsAdminOrProductCreator
+from store.models import Cart, CartItem, Category, Order, OrderItem, Product
+from store.permissions import IsAdminOrProductCreator, IsAdminUser
 from store.serializers import (
+    CategorySerializer,
     LoginSerializer,
     ProductCreateSerializer,
     ProductDetailSerializer,
@@ -14,6 +15,8 @@ from store.serializers import (
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 
 # Create your views here.
@@ -389,4 +392,98 @@ class PlaceOrderAPIView(APIView):
             status=status.HTTP_201_CREATED
         )
 
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateCategoryAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def post(self, request):
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            category = serializer.save()
+            category.created_by = request.user.email
+            category.updated_by = request.user.email
+            category.save()
+            return Response(
+                {
+                    "message": "Category created",
+                    "data": serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class CategoryListAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(
+            categories,
+            many=True
+        )
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+
+
+class CategoryUpdateAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def put(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response(
+                {
+                    "error": "Category not found"
+                },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+        serializer = CategorySerializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_category = serializer.save()
+            updated_category.updated_by = request.user.email
+            updated_category.save()
+            return Response(
+                {
+                    "message": "Category updated",
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class CategoryDeleteAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def delete(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response(
+                {
+                    "error": "Category not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        category.delete()
+        return Response(
+            {
+                "message": "Category deleted successfully"
+            },
+            status=status.HTTP_204_NO_CONTENT
+        )
 
