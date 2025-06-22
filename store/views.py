@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
-from store.models import Cart, CartItem, Order, OrderItem, Product
+from store.models import Cart, CartItem, Category, Order, OrderItem, Product
 from store.permissions import IsAdminOrProductCreator, IsAdminUser
 from store.serializers import (
     CategorySerializer,
@@ -393,7 +393,6 @@ class PlaceOrderAPIView(APIView):
         )
 
 
-
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateCategoryAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminUser]
@@ -417,3 +416,19 @@ class CreateCategoryAPIView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class CategoryListAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(
+            categories,
+            many=True
+        )
+        return Response(
+            serializer.data,
+            status=200
+        )
+

@@ -12,6 +12,7 @@ from store.views import (
     ViewCartAPIView,
     RemoveFromCartAPIView,
     CreateCategoryAPIView,
+    CategoryListAPIView,
 )
 
 
@@ -31,5 +32,6 @@ urlpatterns = [
     path('order/place/', PlaceOrderAPIView.as_view(), name='place-order'),
 
     path('admin/category/create/', CreateCategoryAPIView.as_view(), name='admin-category-create'),
+    path('admin/category/list/', CategoryListAPIView.as_view(), name='admin-category-list'),
 
 ]
