@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from store.models import Product, User
+from store.models import Category, Product, User
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -36,4 +36,11 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', 'stock']
+
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug']
 

@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from store.models import Cart, CartItem, Order, OrderItem, Product
-from store.permissions import IsAdminOrProductCreator
+from store.permissions import IsAdminOrProductCreator, IsAdminUser
 from store.serializers import (
+    CategorySerializer,
     LoginSerializer,
     ProductCreateSerializer,
     ProductDetailSerializer,
@@ -14,6 +15,8 @@ from store.serializers import (
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 
 # Create your views here.
@@ -390,3 +393,27 @@ class PlaceOrderAPIView(APIView):
         )
 
 
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateCategoryAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def post(self, request):
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            category = serializer.save()
+            category.created_by = request.user.email
+            category.updated_by = request.user.email
+            category.save()
+            return Response(
+                {
+                    "message": "Category created",
+                    "data": serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )

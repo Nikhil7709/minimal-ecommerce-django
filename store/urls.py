@@ -11,6 +11,7 @@ from store.views import (
     ProductDeleteAPIView,
     ViewCartAPIView,
     RemoveFromCartAPIView,
+    CreateCategoryAPIView,
 )
 
 
@@ -28,5 +29,7 @@ urlpatterns = [
     path('cart/remove/<int:product_id>/', RemoveFromCartAPIView.as_view(), name='remove-from-cart'),
 
     path('order/place/', PlaceOrderAPIView.as_view(), name='place-order'),
+
+    path('admin/category/create/', CreateCategoryAPIView.as_view(), name='admin-category-create'),
 
 ]
