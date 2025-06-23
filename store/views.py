@@ -150,6 +150,7 @@ class ProductListAPIView(APIView):
     API view for listing all products.
     Retrieves all products from the database and returns them in a serialized format.
     """
+    # TODO: Add pagination to the product list
     def get(self, request):
         # Retrieve all products and serialize them
         products = Product.objects.all()
@@ -499,6 +500,7 @@ class CreateCategoryAPIView(APIView):
 
 
 class CategoryListAPIView(APIView):
+     # TODO: Add pagination to the category list
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
