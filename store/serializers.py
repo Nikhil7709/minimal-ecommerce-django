@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from store.models import Category, Product, User
+from store.models import Category, Order, OrderItem, Product, User
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -38,9 +38,36 @@ class ProductListSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'price', 'stock']
 
 
-
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'slug']
 
+
+class ProductInOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id", "name", "price"]
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductInOrderSerializer()
+
+    class Meta:
+        model = OrderItem
+        fields = ["id", "product", "quantity", "price_at_order_time"]
+
+
+class OrderHistorySerializer(serializers.ModelSerializer):
+    items = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = ["id", "total_amount", "status", "ordered_at", "items"]
+
+    def get_items(self, obj):
+        order_items = OrderItem.objects.filter(order=obj)
+        return OrderItemSerializer(
+            order_items,
+            many=True
+        ).data

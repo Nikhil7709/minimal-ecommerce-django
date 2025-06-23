@@ -1,6 +1,7 @@
 from django.urls import path
 from store.views import (
     AddToCartAPIView,
+    OrderHistoryAPIView,
     PlaceOrderAPIView,
     ProductDetailAPIView,
     ProductListAPIView,
@@ -38,5 +39,6 @@ urlpatterns = [
     path('admin/category/update/<int:pk>/', CategoryUpdateAPIView.as_view(), name='admin-category-update'),
     path('admin/category/delete/<int:pk>/', CategoryDeleteAPIView.as_view(), name='admin-category-delete'),
 
+    path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
 
 ]

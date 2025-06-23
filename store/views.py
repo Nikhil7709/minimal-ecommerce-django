@@ -11,6 +11,7 @@ from store.serializers import (
     ProductDetailSerializer,
     ProductListSerializer,
     RegisterSerializer,
+    OrderHistorySerializer,
 )
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
@@ -487,3 +488,29 @@ class CategoryDeleteAPIView(APIView):
             status=status.HTTP_204_NO_CONTENT
         )
 
+
+class OrderHistoryAPIView(APIView):
+    """
+    Returns the list of past orders for the authenticated user.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(
+            user=request.user
+        ).order_by(
+            '-ordered_at'
+        )
+
+        serializer = OrderHistorySerializer(
+            orders, 
+            many=True
+        )
+
+        return Response(
+            {
+                "message": "Order history fetched successfully",
+                "data": serializer.data
+            },
+            status=status.HTTP_200_OK
+        )
