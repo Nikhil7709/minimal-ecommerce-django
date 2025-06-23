@@ -154,9 +154,14 @@ class ProductListAPIView(APIView):
         # Retrieve all products and serialize them
         products = Product.objects.all()
         serializer = ProductListSerializer(products, many=True)
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
+
+        return APIResponse(
+            success=True,
+            message="Product list fetched successfully.",
+            data={
+                "products": serializer.data
+            },
+            status_code=status.HTTP_200_OK
         )
 
 
