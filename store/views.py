@@ -607,10 +607,12 @@ class OrderHistoryAPIView(APIView):
             many=True
         )
 
-        return Response(
-            {
-                "message": "Order history fetched successfully",
-                "data": serializer.data
+        return APIResponse(
+            success=True,
+            message="Order history fetched successfully.",
+            data={
+                "orders": serializer.data
             },
-            status=status.HTTP_200_OK
+            status_code=status.HTTP_200_OK
         )
+
