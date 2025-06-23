@@ -361,19 +361,20 @@ class RemoveFromCartAPIView(APIView):
             cart = Cart.objects.get(user=request.user)
             cart_item = CartItem.objects.get(cart=cart, product_id=product_id)
         except (Cart.DoesNotExist, CartItem.DoesNotExist):
-            return Response(
-                {
-                    "error": "Item not found in cart"
-                },
-                status=status.HTTP_404_NOT_FOUND
+            return APIResponse(
+                success=False,
+                message="Item not found in cart.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
             )
 
         cart_item.delete()
-        return Response(
-            {
-                "message": "Item removed from cart"
-            },
-            status=status.HTTP_200_OK
+
+        return APIResponse(
+            success=True,
+            message="Item removed from cart successfully.",
+            data={},
+            status_code=status.HTTP_200_OK
         )
 
 
