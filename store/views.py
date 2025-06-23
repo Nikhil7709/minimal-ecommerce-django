@@ -203,11 +203,11 @@ class ProductUpdateAPIView(APIView):
         try:
             product = Product.objects.get(pk=pk)
         except Product.DoesNotExist:
-            return Response(
-                {
-                    'error': 'Product not found'
-                },
-                status=status.HTTP_404_NOT_FOUND
+            return APIResponse(
+                success=False,
+                message="Product not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
             )
 
         self.check_object_permissions(request, product)
@@ -222,16 +222,27 @@ class ProductUpdateAPIView(APIView):
             updated_product = serializer.save()
             updated_product.updated_by = request.user.email
             updated_product.save()
-            return Response(
-                {
-                    'message': 'Product updated successfully',
-                    'product': ProductDetailSerializer(updated_product).data
+
+            filtered_data = {
+                "id": updated_product.id,
+                "name": updated_product.name,
+                "price": str(updated_product.price),
+                "stock": updated_product.stock,
+            }
+
+            return APIResponse(
+                success=True,
+                message="Product updated successfully.",
+                data={
+                    "product": filtered_data
                 },
-                status=status.HTTP_200_OK
+                status_code=status.HTTP_200_OK
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+        return APIResponse(
+            success=False,
+            message="Validation failed.",
+            error_fields=serializer.errors,
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
