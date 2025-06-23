@@ -193,6 +193,7 @@ class ProductDetailAPIView(APIView):
             status_code=status.HTTP_200_OK
         )
 
+
 class ProductUpdateAPIView(APIView):
     """
     API view for updating a product.
@@ -329,7 +330,9 @@ class ViewCartAPIView(APIView):
             return APIResponse(
                 success=True,
                 message="Cart fetched successfully.",
-                data={"cart": []},
+                data={
+                    "cart": []
+                },
                 status_code=status.HTTP_200_OK
             )
 
@@ -487,7 +490,9 @@ class CreateCategoryAPIView(APIView):
             return APIResponse(
                 success=True,
                 message="Category created successfully.",
-                data={"category": filtered_data},
+                data={
+                    "category": filtered_data
+                },
                 status_code=status.HTTP_201_CREATED
             )
 
@@ -521,7 +526,9 @@ class CategoryListAPIView(APIView):
         return APIResponse(
             success=True,
             message="Category list fetched successfully.",
-            data={"categories": formatted_data},
+            data={
+                "categories": formatted_data
+            },
             status_code=status.HTTP_200_OK
         )
 
