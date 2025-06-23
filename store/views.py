@@ -124,16 +124,24 @@ class ProductCreateAPIView(APIView):
             product.created_by = request.user.email
             product.updated_by = request.user.email
             product.save()
-            return Response(
-                {
-                    'message': 'Product created successfully',
-                    'product': ProductDetailSerializer(product).data
+
+            return APIResponse(
+                success=True,
+                message="Product created successfully.",
+                data={
+                    "product": ProductDetailSerializer(product).data
                 },
-                status=status.HTTP_201_CREATED
+                status_code=status.HTTP_201_CREATED
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+
+        return APIResponse(
+            success=False,
+            message="Product creation failed.",
+            error_code="VALIDATION_ERROR",
+            error_message="Invalid product data provided.",
+            error_fields=serializer.errors,
+            data={},
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
