@@ -453,14 +453,15 @@ class PlaceOrderAPIView(APIView):
         # Step 4: Clear cart
         cart_items.delete()
 
-        return Response(
-            {
-                "message": "Order placed successfully",
-                "order_id": order.id,
+        return APIResponse(
+            success=True,
+            message="Order placed successfully.",
+            data={
+                "order_id": str(order.id),
                 "total_amount": float(order.total_amount),
                 "status": order.status
             },
-            status=status.HTTP_201_CREATED
+            status_code=status.HTTP_201_CREATED
         )
 
 
