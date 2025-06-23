@@ -507,9 +507,20 @@ class CategoryListAPIView(APIView):
             categories,
             many=True
         )
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
+
+        formatted_data = [
+            {
+                "id": category["id"],
+                "name": category["name"],
+                "slug": category["slug"]
+            } for category in serializer.data
+        ]
+
+        return APIResponse(
+            success=True,
+            message="Category list fetched successfully.",
+            data={"categories": formatted_data},
+            status_code=status.HTTP_200_OK
         )
 
 
