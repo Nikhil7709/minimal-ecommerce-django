@@ -257,22 +257,23 @@ class ProductDeleteAPIView(APIView):
         try:
             product = Product.objects.get(pk=pk)
         except Product.DoesNotExist:
-            return Response(
-                {
-                    'error': 'Product not found'
-                },
-            status=status.HTTP_404_NOT_FOUND
-        )
+            return APIResponse(
+                success=False,
+                message="Product not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
+            )
 
         self.check_object_permissions(request, product)
 
         product.delete()
-        return Response(
-            {
-                'message': 'Product deleted successfully'
-            },
-            status=status.HTTP_204_NO_CONTENT
+        return APIResponse(
+            success=True,
+            message="Product deleted successfully.",
+            data={},
+            status_code=status.HTTP_204_NO_CONTENT
         )
+
 
 
 class AddToCartAPIView(APIView):
