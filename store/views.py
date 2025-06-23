@@ -170,19 +170,27 @@ class ProductDetailAPIView(APIView):
         try:
             product = Product.objects.get(pk=pk)
         except Product.DoesNotExist:
-            return Response(
-                {
-                    'error': 'Product not found'
-                },
-                status=status.HTTP_404_NOT_FOUND
+            return APIResponse(
+                success=False,
+                message="Product not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
             )
 
         serializer = ProductDetailSerializer(product)
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
-        )
+        filtered_data = {
+            "id": serializer.data["id"],
+            "name": serializer.data["name"],
+            "price": serializer.data["price"],
+            "stock": serializer.data["stock"],
+        }
 
+        return APIResponse(
+            success=True,
+            message="Product fetched successfully.",
+            data={"product": filtered_data},
+            status_code=status.HTTP_200_OK
+        )
 
 class ProductUpdateAPIView(APIView):
     """
