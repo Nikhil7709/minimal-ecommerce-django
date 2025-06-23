@@ -531,28 +531,37 @@ class CategoryUpdateAPIView(APIView):
         try:
             category = Category.objects.get(pk=pk)
         except Category.DoesNotExist:
-            return Response(
-                {
-                    "error": "Category not found"
-                },
-            status=status.HTTP_404_NOT_FOUND
-        )
+            return APIResponse(
+                success=False,
+                message="Category not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
+            )
 
         serializer = CategorySerializer(category, data=request.data, partial=True)
         if serializer.is_valid():
             updated_category = serializer.save()
             updated_category.updated_by = request.user.email
             updated_category.save()
-            return Response(
-                {
-                    "message": "Category updated",
-                    "data": serializer.data
-                },
-                status=status.HTTP_200_OK
+
+            filtered_data = {
+                "id": updated_category.id,
+                "name": updated_category.name,
+                "slug": updated_category.slug,
+            }
+
+            return APIResponse(
+                success=True,
+                message="Category updated successfully.",
+                data={"category": filtered_data},
+                status_code=status.HTTP_200_OK
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+
+        return APIResponse(
+            success=False,
+            message="Validation failed.",
+            error_fields=serializer.errors,
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
