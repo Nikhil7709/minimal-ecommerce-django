@@ -301,12 +301,20 @@ class AddToCartAPIView(APIView):
         if not created:
             cart_item.quantity += 1
             cart_item.save()
+        
+        cart_data = {
+            "product_id": product.id,
+            "product_name": product.name,
+            "quantity": cart_item.quantity,
+        }
 
-        return Response(
-            {
-                "message": "Product added to cart successfully"
+        return APIResponse(
+            success=True,
+            message="Product added to cart successfully.",
+            data={
+                "cart_item": cart_data
             },
-            status=status.HTTP_200_OK
+            status_code=status.HTTP_200_OK
         )
 
 
