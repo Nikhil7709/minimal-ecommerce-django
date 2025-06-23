@@ -325,26 +325,31 @@ class ViewCartAPIView(APIView):
         try:
             cart = Cart.objects.get(user=request.user)
         except Cart.DoesNotExist:
-            return Response(
-                {
-                    "cart": []
-                },
-                status=status.HTTP_200_OK
+            return APIResponse(
+                success=True,
+                message="Cart fetched successfully.",
+                data={"cart": []},
+                status_code=status.HTTP_200_OK
             )
 
         items = CartItem.objects.filter(cart=cart)
-        data = [
+        cart_data = [
             {
                 "product": item.product.name,
                 "quantity": item.quantity,
-                "price": item.product.price,
-                "total": item.quantity * item.product.price
+                "price": str(item.product.price),
+                "total": str(item.quantity * item.product.price)
             }
             for item in items
         ]
-        return Response(
-            data,
-            status=status.HTTP_200_OK
+
+        return APIResponse(
+            success=True,
+            message="Cart fetched successfully.",
+            data={
+                "cart": cart_data
+            },
+            status_code=status.HTTP_200_OK
         )
 
 
