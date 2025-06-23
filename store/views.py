@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
+from libs.response import APIResponse
 from store.models import Cart, CartItem, Category, Order, OrderItem, Product
 from store.permissions import IsAdminOrProductCreator, IsAdminUser
 from store.serializers import (
@@ -41,20 +42,26 @@ class RegisterAPIView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             token = get_tokens_for_user(user)
-            return Response(
-                {
-                    'message': 'Registration successful',
-                    'user': {
-                        'email': user.email,
-                        'name': user.name,
-                    },
-                    'token': token
-                }, 
-                status=status.HTTP_201_CREATED
+
+            return APIResponse(
+                message="Registration successful",
+                data={
+                    "email": user.email,
+                    "name": user.name,
+                    "token": token
+                },
+                status_code=status.HTTP_201_CREATED
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+
+        return APIResponse(
+            success=False,
+            message="Validation failed",
+            errors={
+                "code": "validation_error",
+                "message": "Invalid input data",
+                "errors": serializer.errors
+            },
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
