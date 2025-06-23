@@ -572,19 +572,20 @@ class CategoryDeleteAPIView(APIView):
         try:
             category = Category.objects.get(pk=pk)
         except Category.DoesNotExist:
-            return Response(
-                {
-                    "error": "Category not found"
-                },
-                status=status.HTTP_404_NOT_FOUND
+            return APIResponse(
+                success=False,
+                message="Category not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
             )
 
         category.delete()
-        return Response(
-            {
-                "message": "Category deleted successfully"
-            },
-            status=status.HTTP_204_NO_CONTENT
+
+        return APIResponse(
+            success=True,
+            message="Category deleted successfully.",
+            data={},
+            status_code=status.HTTP_204_NO_CONTENT
         )
 
 
