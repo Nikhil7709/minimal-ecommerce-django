@@ -476,17 +476,25 @@ class CreateCategoryAPIView(APIView):
             category.created_by = request.user.email
             category.updated_by = request.user.email
             category.save()
-            return Response(
-                {
-                    "message": "Category created",
-                    "data": serializer.data
-                },
-                status=status.HTTP_201_CREATED
+
+            filtered_data = {
+                "id": category.id,
+                "name": category.name,
+                "slug": category.slug
+            }
+
+            return APIResponse(
+                success=True,
+                message="Category created successfully.",
+                data={"category": filtered_data},
+                status_code=status.HTTP_201_CREATED
             )
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+        return APIResponse(
+            success=False,
+            message="Validation failed.",
+            error_fields=serializer.errors,
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
