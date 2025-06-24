@@ -80,13 +80,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="card-body d-flex flex-column">
             <h5 class="card-title" style="cursor:pointer;" onclick="viewProductDetail(${product.id})">${product.name}</h5>
             <p class="card-text text-muted">₹${product.price}</p>
-            {% comment %} <button class="btn btn-outline-primary mt-auto w-100">
-                <i class="fas fa-cart-plus"></i> Add to Cart
-            </button> {% endcomment %}
 
             <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
                 <button class="btn btn-sm btn-outline-secondary" onclick="decreaseQty(this)">-</button>
-                <input type="number" class="form-control form-control-sm text-center" value="1" min="1" style="width: 50px;" readonly>
+                <input type="number"
+                    class="form-control form-control-sm 
+                    text-center" 
+                    value="1" 
+                    min="1" 
+                    style="width: 50px; text-align: center; appearance: textfield;"  
+                    readonly>
                 <button class="btn btn-sm btn-outline-secondary" onclick="increaseQty(this)">+</button>
             </div>
 
