@@ -1,3 +1,5 @@
+from django.shortcuts import redirect
+from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -36,7 +38,10 @@ class RegisterAPIView(APIView):
     API view for user registration.
     Handles user registration by validating input data and creating a new user.
     """
+    print("line 39 RegisterAPIView initialized")
     def post(self, request):
+        print("line 41 RegisterAPIView post method called")
+
         # Validate the request data using the RegisterSerializer
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -108,6 +113,10 @@ class LoginAPIView(APIView):
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
+def logout_user(request):
+    return redirect('/api/store/login-ui/')
+
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class ProductCreateAPIView(APIView):
     """
@@ -115,6 +124,8 @@ class ProductCreateAPIView(APIView):
     Handles product creation by validating input data and saving the product.
     """
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
 
     def post(self, request):
         # Validate the request data using the ProductCreateSerializer
@@ -200,6 +211,7 @@ class ProductUpdateAPIView(APIView):
     Only the admin or the user who created the product can update it.
     """
     permission_classes = [permissions.IsAuthenticated, IsAdminOrProductCreator]
+    parser_classes = [MultiPartParser, FormParser]
 
     def put(self, request, pk):
         try:
