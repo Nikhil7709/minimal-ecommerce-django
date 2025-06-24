@@ -16,6 +16,13 @@
       <p id="product-description"></p>
       <p class="fw-bold" id="product-price"></p>
       <p id="product-stock"></p>
+      <div class="d-flex justify-content-start align-items-center gap-2 mt-3">
+        <button class="btn btn-sm btn-outline-secondary" onclick="decreaseQty()">-</button>
+        <input type="number" id="qty-input" class="form-control form-control-sm text-center"
+                value="1" min="1" style="width: 50px;" readonly>
+        <button class="btn btn-sm btn-outline-secondary" onclick="increaseQty()">+</button>
+      </div>
+
       <button class="btn btn-success mt-3">
         <i class="fas fa-cart-plus"></i> Add to Cart
       </button>
@@ -72,5 +79,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.error("Error loading product:", err);
   }
 });
+
+function increaseQty() {
+  const input = document.getElementById("qty-input");
+  input.value = parseInt(input.value) + 1;
+}
+
+function decreaseQty() {
+  const input = document.getElementById("qty-input");
+  if (parseInt(input.value) > 1) {
+    input.value = parseInt(input.value) - 1;
+  }
+}
+
+
 </script>
 {% endblock %}

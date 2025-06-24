@@ -76,9 +76,9 @@ document.addEventListener("DOMContentLoaded", function () {
       card.className = 'col-md-4 mb-4';
       card.innerHTML = `
         <div class="card h-100 shadow-sm">
-            <img src="${product.image || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${product.name}" style="cursor:pointer;" onclick="viewProductDetail(${product.id})">
+            <img src="${product.image || 'https://via.placeholder.com/300'}" class="card-img-top" alt="${product.name}" style="cursor:pointer;" onclick="viewProductDetail(${product.id}, this)">
             <div class="card-body d-flex flex-column">
-            <h5 class="card-title" style="cursor:pointer;" onclick="viewProductDetail(${product.id})">${product.name}</h5>
+            <h5 class="card-title" style="cursor:pointer;" onclick="viewProductDetail(${product.id}, this)">${product.name}</h5>
             <p class="card-text text-muted">₹${product.price}</p>
 
             <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
@@ -122,6 +122,14 @@ function decreaseQty(btn) {
     input.value = parseInt(input.value) - 1;
   }
 }
+
+window.viewProductDetail = function(id, btn) {
+  const qtyInput = btn
+    ? btn.closest('.card-body').querySelector('input[type="number"]')
+    : null;
+  const quantity = qtyInput ? qtyInput.value : 1;
+  window.location.href = `/api/store/product-ui/?id=${id}&qty=${quantity}`;
+};
 
 </script>
 {% endblock %}
