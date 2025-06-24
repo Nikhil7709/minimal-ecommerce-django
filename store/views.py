@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
+from libs.response import APIResponse
 from store.models import Cart, CartItem, Category, Order, OrderItem, Product
 from store.permissions import IsAdminOrProductCreator, IsAdminUser
 from store.serializers import (
@@ -41,48 +42,70 @@ class RegisterAPIView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             token = get_tokens_for_user(user)
-            return Response(
-                {
-                    'message': 'Registration successful',
-                    'user': {
-                        'email': user.email,
-                        'name': user.name,
-                    },
-                    'token': token
-                }, 
-                status=status.HTTP_201_CREATED
+
+            return APIResponse(
+                message="Registration successful",
+                data={
+                    "email": user.email,
+                    "name": user.name,
+                    "token": token
+                },
+                status_code=status.HTTP_201_CREATED
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+
+        return APIResponse(
+            success=False,
+            message="Validation failed",
+            errors={
+                "code": "validation_error",
+                "message": "Invalid input data",
+                "errors": serializer.errors
+            },
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
 class LoginAPIView(APIView):
+    """
+    API view for user login.
+    Handles user authentication by validating input data and returning a JWT token.
+    """
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
             user = authenticate(email=email, password=password)
+
             if user:
                 token = get_tokens_for_user(user)
-                return Response(
-                    {
-                        'message': 'Login successful',
-                        'token': token
+                return APIResponse(
+                    success=True,
+                    message="Login successful.",
+                    data={
+                        "token": token
                     },
-                    status=status.HTTP_200_OK
+                    status_code=status.HTTP_200_OK
                 )
-            return Response(
-                {
-                    'error': 'Invalid credentials'
-                },
-                status=status.HTTP_401_UNAUTHORIZED
+
+            return APIResponse(
+                success=False,
+                message="Login failed.",
+                error_code="INVALID_CREDENTIALS",
+                error_message="Invalid email or password.",
+                error_fields=[],
+                data={},
+                status_code=status.HTTP_401_UNAUTHORIZED
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+
+        return APIResponse(
+            success=False,
+            message="Invalid input.",
+            error_code="VALIDATION_ERROR",
+            error_message="Email or password is missing or malformed.",
+            error_fields=serializer.errors,
+            data={},
+            status_code=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -101,16 +124,24 @@ class ProductCreateAPIView(APIView):
             product.created_by = request.user.email
             product.updated_by = request.user.email
             product.save()
-            return Response(
-                {
-                    'message': 'Product created successfully',
-                    'product': ProductDetailSerializer(product).data
+
+            return APIResponse(
+                success=True,
+                message="Product created successfully.",
+                data={
+                    "product": ProductDetailSerializer(product).data
                 },
-                status=status.HTTP_201_CREATED
+                status_code=status.HTTP_201_CREATED
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+
+        return APIResponse(
+            success=False,
+            message="Product creation failed.",
+            error_code="VALIDATION_ERROR",
+            error_message="Invalid product data provided.",
+            error_fields=serializer.errors,
+            data={},
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -119,13 +150,19 @@ class ProductListAPIView(APIView):
     API view for listing all products.
     Retrieves all products from the database and returns them in a serialized format.
     """
+    # TODO: Add pagination to the product list
     def get(self, request):
         # Retrieve all products and serialize them
         products = Product.objects.all()
         serializer = ProductListSerializer(products, many=True)
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
+
+        return APIResponse(
+            success=True,
+            message="Product list fetched successfully.",
+            data={
+                "products": serializer.data
+            },
+            status_code=status.HTTP_200_OK
         )
 
 
@@ -134,17 +171,26 @@ class ProductDetailAPIView(APIView):
         try:
             product = Product.objects.get(pk=pk)
         except Product.DoesNotExist:
-            return Response(
-                {
-                    'error': 'Product not found'
-                },
-                status=status.HTTP_404_NOT_FOUND
+            return APIResponse(
+                success=False,
+                message="Product not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
             )
 
         serializer = ProductDetailSerializer(product)
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
+        filtered_data = {
+            "id": serializer.data["id"],
+            "name": serializer.data["name"],
+            "price": serializer.data["price"],
+            "stock": serializer.data["stock"],
+        }
+
+        return APIResponse(
+            success=True,
+            message="Product fetched successfully.",
+            data={"product": filtered_data},
+            status_code=status.HTTP_200_OK
         )
 
 
@@ -159,11 +205,11 @@ class ProductUpdateAPIView(APIView):
         try:
             product = Product.objects.get(pk=pk)
         except Product.DoesNotExist:
-            return Response(
-                {
-                    'error': 'Product not found'
-                },
-                status=status.HTTP_404_NOT_FOUND
+            return APIResponse(
+                success=False,
+                message="Product not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
             )
 
         self.check_object_permissions(request, product)
@@ -178,16 +224,27 @@ class ProductUpdateAPIView(APIView):
             updated_product = serializer.save()
             updated_product.updated_by = request.user.email
             updated_product.save()
-            return Response(
-                {
-                    'message': 'Product updated successfully',
-                    'product': ProductDetailSerializer(updated_product).data
+
+            filtered_data = {
+                "id": updated_product.id,
+                "name": updated_product.name,
+                "price": str(updated_product.price),
+                "stock": updated_product.stock,
+            }
+
+            return APIResponse(
+                success=True,
+                message="Product updated successfully.",
+                data={
+                    "product": filtered_data
                 },
-                status=status.HTTP_200_OK
+                status_code=status.HTTP_200_OK
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+        return APIResponse(
+            success=False,
+            message="Validation failed.",
+            error_fields=serializer.errors,
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -202,22 +259,23 @@ class ProductDeleteAPIView(APIView):
         try:
             product = Product.objects.get(pk=pk)
         except Product.DoesNotExist:
-            return Response(
-                {
-                    'error': 'Product not found'
-                },
-            status=status.HTTP_404_NOT_FOUND
-        )
+            return APIResponse(
+                success=False,
+                message="Product not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
+            )
 
         self.check_object_permissions(request, product)
 
         product.delete()
-        return Response(
-            {
-                'message': 'Product deleted successfully'
-            },
-            status=status.HTTP_204_NO_CONTENT
+        return APIResponse(
+            success=True,
+            message="Product deleted successfully.",
+            data={},
+            status_code=status.HTTP_204_NO_CONTENT
         )
+
 
 
 class AddToCartAPIView(APIView):
@@ -245,12 +303,20 @@ class AddToCartAPIView(APIView):
         if not created:
             cart_item.quantity += 1
             cart_item.save()
+        
+        cart_data = {
+            "product_id": product.id,
+            "product_name": product.name,
+            "quantity": cart_item.quantity,
+        }
 
-        return Response(
-            {
-                "message": "Product added to cart successfully"
+        return APIResponse(
+            success=True,
+            message="Product added to cart successfully.",
+            data={
+                "cart_item": cart_data
             },
-            status=status.HTTP_200_OK
+            status_code=status.HTTP_200_OK
         )
 
 
@@ -261,26 +327,33 @@ class ViewCartAPIView(APIView):
         try:
             cart = Cart.objects.get(user=request.user)
         except Cart.DoesNotExist:
-            return Response(
-                {
+            return APIResponse(
+                success=True,
+                message="Cart fetched successfully.",
+                data={
                     "cart": []
                 },
-                status=status.HTTP_200_OK
+                status_code=status.HTTP_200_OK
             )
 
         items = CartItem.objects.filter(cart=cart)
-        data = [
+        cart_data = [
             {
                 "product": item.product.name,
                 "quantity": item.quantity,
-                "price": item.product.price,
-                "total": item.quantity * item.product.price
+                "price": str(item.product.price),
+                "total": str(item.quantity * item.product.price)
             }
             for item in items
         ]
-        return Response(
-            data,
-            status=status.HTTP_200_OK
+
+        return APIResponse(
+            success=True,
+            message="Cart fetched successfully.",
+            data={
+                "cart": cart_data
+            },
+            status_code=status.HTTP_200_OK
         )
 
 
@@ -292,19 +365,20 @@ class RemoveFromCartAPIView(APIView):
             cart = Cart.objects.get(user=request.user)
             cart_item = CartItem.objects.get(cart=cart, product_id=product_id)
         except (Cart.DoesNotExist, CartItem.DoesNotExist):
-            return Response(
-                {
-                    "error": "Item not found in cart"
-                },
-                status=status.HTTP_404_NOT_FOUND
+            return APIResponse(
+                success=False,
+                message="Item not found in cart.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
             )
 
         cart_item.delete()
-        return Response(
-            {
-                "message": "Item removed from cart"
-            },
-            status=status.HTTP_200_OK
+
+        return APIResponse(
+            success=True,
+            message="Item removed from cart successfully.",
+            data={},
+            status_code=status.HTTP_200_OK
         )
 
 
@@ -383,14 +457,15 @@ class PlaceOrderAPIView(APIView):
         # Step 4: Clear cart
         cart_items.delete()
 
-        return Response(
-            {
-                "message": "Order placed successfully",
-                "order_id": order.id,
+        return APIResponse(
+            success=True,
+            message="Order placed successfully.",
+            data={
+                "order_id": str(order.id),
                 "total_amount": float(order.total_amount),
                 "status": order.status
             },
-            status=status.HTTP_201_CREATED
+            status_code=status.HTTP_201_CREATED
         )
 
 
@@ -405,21 +480,32 @@ class CreateCategoryAPIView(APIView):
             category.created_by = request.user.email
             category.updated_by = request.user.email
             category.save()
-            return Response(
-                {
-                    "message": "Category created",
-                    "data": serializer.data
+
+            filtered_data = {
+                "id": category.id,
+                "name": category.name,
+                "slug": category.slug
+            }
+
+            return APIResponse(
+                success=True,
+                message="Category created successfully.",
+                data={
+                    "category": filtered_data
                 },
-                status=status.HTTP_201_CREATED
+                status_code=status.HTTP_201_CREATED
             )
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+        return APIResponse(
+            success=False,
+            message="Validation failed.",
+            error_fields=serializer.errors,
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
 class CategoryListAPIView(APIView):
+     # TODO: Add pagination to the category list
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -428,9 +514,22 @@ class CategoryListAPIView(APIView):
             categories,
             many=True
         )
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK
+
+        formatted_data = [
+            {
+                "id": category["id"],
+                "name": category["name"],
+                "slug": category["slug"]
+            } for category in serializer.data
+        ]
+
+        return APIResponse(
+            success=True,
+            message="Category list fetched successfully.",
+            data={
+                "categories": formatted_data
+            },
+            status_code=status.HTTP_200_OK
         )
 
 
@@ -441,28 +540,37 @@ class CategoryUpdateAPIView(APIView):
         try:
             category = Category.objects.get(pk=pk)
         except Category.DoesNotExist:
-            return Response(
-                {
-                    "error": "Category not found"
-                },
-            status=status.HTTP_404_NOT_FOUND
-        )
+            return APIResponse(
+                success=False,
+                message="Category not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
+            )
 
         serializer = CategorySerializer(category, data=request.data, partial=True)
         if serializer.is_valid():
             updated_category = serializer.save()
             updated_category.updated_by = request.user.email
             updated_category.save()
-            return Response(
-                {
-                    "message": "Category updated",
-                    "data": serializer.data
-                },
-                status=status.HTTP_200_OK
+
+            filtered_data = {
+                "id": updated_category.id,
+                "name": updated_category.name,
+                "slug": updated_category.slug,
+            }
+
+            return APIResponse(
+                success=True,
+                message="Category updated successfully.",
+                data={"category": filtered_data},
+                status_code=status.HTTP_200_OK
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+
+        return APIResponse(
+            success=False,
+            message="Validation failed.",
+            error_fields=serializer.errors,
+            status_code=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -473,19 +581,20 @@ class CategoryDeleteAPIView(APIView):
         try:
             category = Category.objects.get(pk=pk)
         except Category.DoesNotExist:
-            return Response(
-                {
-                    "error": "Category not found"
-                },
-                status=status.HTTP_404_NOT_FOUND
+            return APIResponse(
+                success=False,
+                message="Category not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+                data={}
             )
 
         category.delete()
-        return Response(
-            {
-                "message": "Category deleted successfully"
-            },
-            status=status.HTTP_204_NO_CONTENT
+
+        return APIResponse(
+            success=True,
+            message="Category deleted successfully.",
+            data={},
+            status_code=status.HTTP_204_NO_CONTENT
         )
 
 
@@ -507,10 +616,12 @@ class OrderHistoryAPIView(APIView):
             many=True
         )
 
-        return Response(
-            {
-                "message": "Order history fetched successfully",
-                "data": serializer.data
+        return APIResponse(
+            success=True,
+            message="Order history fetched successfully.",
+            data={
+                "orders": serializer.data
             },
-            status=status.HTTP_200_OK
+            status_code=status.HTTP_200_OK
         )
+
