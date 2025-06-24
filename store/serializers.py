@@ -21,7 +21,7 @@ class LoginSerializer(serializers.Serializer):
 class ProductCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["id", "name", "description", "price", "stock", "category"]
+        fields = ["id", "name", "description", "price", "stock", "category", "image"]
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
@@ -29,13 +29,13 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ["id", "name", "description", "price", "stock", "category_name"]
+        fields = ["id", "name", "description", "price", "stock", "category_name", "image"]
 
 
 class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'price', 'stock']
+        fields = ['id', 'name', 'price', 'stock', 'image']
 
 
 class CategorySerializer(serializers.ModelSerializer):
