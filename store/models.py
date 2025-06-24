@@ -143,7 +143,6 @@ class CartItem(AbstractAuditCreator, AbstractAuditUpdater):
         return f"{self.cart} - {self.product}"
 
     class Meta:
-        # unique_together = ["cart", "product"]
         verbose_name = "Cart Item"
         verbose_name_plural = "5. Cart Items"
 
