@@ -83,6 +83,11 @@ class Product(AbstractAuditCreator, AbstractAuditUpdater):
         max_digits=10,
         decimal_places=2
     )
+    image = models.ImageField(
+        upload_to='product_images/',
+        blank=True,
+        null=True
+    )
     stock = models.PositiveIntegerField()
 
     # F.Ks
