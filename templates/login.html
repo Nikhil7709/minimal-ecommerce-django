@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login | MyShop{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card p-4 shadow-lg" style="width: 100%; max-width: 400px;">
+    <div class="text-center mb-4">
+      <h2 class="fw-bold">Welcome Back</h2>
+      <p class="text-muted">Login to continue shopping</p>
+    </div>
+    <form id="login-form">
+      <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="email" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" required>
+      </div>
+      <button type="submit" class="btn btn-success w-100">
+        <i class="fas fa-sign-in-alt me-2"></i> Login
+      </button>
+      <div class="alert mt-3 d-none" id="login-alert"></div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('login-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  const response = await fetch('/api/store/login/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+
+  const alertBox = document.getElementById('login-alert');
+  const data = await response.json();
+
+  if (response.ok && data.success) {
+    alertBox.classList.remove('d-none', 'alert-danger');
+    alertBox.classList.add('alert', 'alert-success');
+    alertBox.innerText = data.message;
+
+    localStorage.setItem('token', data.data.token.access);
+    localStorage.setItem('refresh', data.data.token.refresh);
+
+    setTimeout(() => {
+      window.location.href = '/api/store/home/';
+    }, 500);
+  } else {
+    alertBox.classList.remove('d-none', 'alert-success');
+    alertBox.classList.add('alert', 'alert-danger');
+    alertBox.innerText = data.error_message || "Login failed.";
+  }
+});
+</script>
+{% endblock %}
