@@ -59,10 +59,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("product-description").innerText = product.description || "No description available.";
     document.getElementById("product-price").innerText = `Price: ₹${product.price}`;
     document.getElementById("product-stock").innerText = `Stock: ${product.stock}`;
-    document.getElementById("product-category").innerText = `Category: ${product.category_name}`;
-    document.getElementById("product-image").src = product.image || "https://via.placeholder.com/400";
+    document.getElementById("product-category").innerText = `Category: ${product.category}`;
+
+    const imageUrl = product.image
+        ? (product.image.startsWith('http') || product.image.startsWith('/media') ? product.image : `/media/${product.image}`)
+        : "https://via.placeholder.com/400";
+
+    document.getElementById("product-image").src = imageUrl;
     document.getElementById("product-image").alt = product.name;
-  } catch (err) {
+
+} catch (err) {
     console.error("Error loading product:", err);
   }
 });
