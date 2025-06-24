@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Detail | MyShop{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-5">
+      <img id="product-image" src="https://via.placeholder.com/400" class="img-fluid rounded" alt="Product Image">
+    
+    </div>
+    <div class="col-md-7">
+      <h3 id="product-name">Loading...</h3>
+      <p class="text-muted" id="product-category"></p>
+      <p id="product-description"></p>
+      <p class="fw-bold" id="product-price"></p>
+      <p id="product-stock"></p>
+      <button class="btn btn-success mt-3">
+        <i class="fas fa-cart-plus"></i> Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "/api/store/login-ui/";
+    return;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get('id');
+
+  if (!productId) {
+    document.body.innerHTML = "<p class='text-danger text-center mt-5'>Invalid Product ID</p>";
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/store/${productId}/`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      document.body.innerHTML = `<p class="text-danger text-center mt-5">${data.message}</p>`;
+      return;
+    }
+
+    const product = data.data.product;
+
+    document.getElementById("product-name").innerText = product.name;
+    document.getElementById("product-description").innerText = product.description || "No description available.";
+    document.getElementById("product-price").innerText = `Price: ₹${product.price}`;
+    document.getElementById("product-stock").innerText = `Stock: ${product.stock}`;
+    document.getElementById("product-category").innerText = `Category: ${product.category_name}`;
+    document.getElementById("product-image").src = product.image || "https://via.placeholder.com/400";
+    document.getElementById("product-image").alt = product.name;
+  } catch (err) {
+    console.error("Error loading product:", err);
+  }
+});
+</script>
+{% endblock %}
