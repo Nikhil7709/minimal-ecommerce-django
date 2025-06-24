@@ -364,6 +364,7 @@ class ViewCartAPIView(APIView):
         items = CartItem.objects.filter(cart=cart)
         cart_data = [
             {
+                "product_id": item.product.id,
                 "product": item.product.name,
                 "quantity": item.quantity,
                 "price": str(item.product.price),
@@ -386,26 +387,41 @@ class ViewCartAPIView(APIView):
 class RemoveFromCartAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, product_id):
+    def delete(self, request, product_id):
         try:
             cart = Cart.objects.get(user=request.user)
-            cart_item = CartItem.objects.get(cart=cart, product_id=product_id)
-        except (Cart.DoesNotExist, CartItem.DoesNotExist):
+            cart_item = CartItem.objects.filter(cart=cart, product_id=product_id).first()
+
+            if not cart_item:
+                return APIResponse(
+                    success=False,
+                    message="Item not found in cart.",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    data={}
+                )
+
+            # Restore product stock
+            product = cart_item.product
+            product.stock += cart_item.quantity
+            product.save()
+
+            # Delete the cart item
+            cart_item.delete()
+
+            return APIResponse(
+                success=True,
+                message="Item removed from cart successfully.",
+                data={},
+                status_code=status.HTTP_200_OK
+            )
+
+        except Cart.DoesNotExist:
             return APIResponse(
                 success=False,
-                message="Item not found in cart.",
+                message="Cart does not exist.",
                 status_code=status.HTTP_404_NOT_FOUND,
                 data={}
             )
-
-        cart_item.delete()
-
-        return APIResponse(
-            success=True,
-            message="Item removed from cart successfully.",
-            data={},
-            status_code=status.HTTP_200_OK
-        )
 
 
 class PlaceOrderAPIView(APIView):

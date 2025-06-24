@@ -17,6 +17,29 @@
 
 {% block extra_js %}
 <script>
+
+// ✅ Global scope - accessible from HTML onclick
+function removeFromCart(productId) {
+  const token = localStorage.getItem("token");
+  console.log("Removing product ID:", productId);
+
+  fetch(`/api/store/cart/remove/${productId}/`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      console.error("Failed to remove item.");
+    }
+    location.reload(); // Refresh cart
+  })
+  .catch(err => {
+    console.error("Error removing item:", err);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -51,59 +74,42 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-    items.forEach((item) => {
-    const card = document.createElement("div");
-    card.className = "col-md-6 mb-4";
+      items.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "col-md-6 mb-4";
 
-    const imageUrl = item.image?.startsWith("http") || item.image?.startsWith("/media/")
-        ? item.image
-        : `/media/${item.image}`;
+        const imageUrl = item.image?.startsWith("http") || item.image?.startsWith("/media/")
+          ? item.image
+          : `/media/${item.image}`;
 
-    card.innerHTML = `
-        <div class="card h-100 shadow-sm">
-        <div class="row g-0 h-100">
-            <div class="col-8">
-            <div class="card-body d-flex flex-column h-100">
-                <h5 class="card-title">${item.product}</h5>
-                <p class="card-text mb-1">Price: ₹${item.price}</p>
-                <p class="card-text mb-1">Quantity: <strong>${item.quantity}</strong></p>
-                <p class="card-text fw-bold">Total: ₹${item.total}</p>
-                <button class="btn btn-danger btn-sm mt-auto" onclick="removeFromCart(${item.product_id})">
-                <i class="fas fa-trash"></i> Remove
-                </button>
+        card.innerHTML = `
+          <div class="card h-100 shadow-sm">
+            <div class="row g-0 h-100">
+              <div class="col-8">
+                <div class="card-body d-flex flex-column h-100">
+                  <h5 class="card-title">${item.product}</h5>
+                  <p class="card-text mb-1">Price: ₹${item.price}</p>
+                  <p class="card-text mb-1">Quantity: <strong>${item.quantity}</strong></p>
+                  <p class="card-text fw-bold">Total: ₹${item.total}</p>
+                  <button class="btn btn-danger btn-sm mt-auto" onclick="removeFromCart(${item.product_id})">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </div>
+              </div>
+              <div class="col-4 d-flex align-items-center p-2">
+                <img src="${imageUrl}" class="img-fluid rounded" alt="${item.product}" style="max-height: 120px; object-fit: contain;">
+              </div>
             </div>
-            </div>
-            <div class="col-4 d-flex align-items-center p-2">
-            <img src="${imageUrl}" class="img-fluid rounded" alt="${item.product}" style="max-height: 120px; object-fit: contain;">
-            </div>
-        </div>
-        </div>
-    `;
-    cartContainer.appendChild(card);
-    });
-
-
+          </div>
+        `;
+        cartContainer.appendChild(card);
+      });
 
     } catch (err) {
       console.error("Error fetching cart items:", err);
     }
   }
-
-  // Optional: remove from cart function
-  function removeFromCart(productId) {
-    const token = localStorage.getItem("token");
-
-    fetch(`/api/store/cart/remove/${productId}/`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(() => {
-      fetchCartItems();
-    }).catch(err => {
-      console.error("Error removing item:", err);
-    });
-  }
 });
 </script>
 {% endblock %}
+
