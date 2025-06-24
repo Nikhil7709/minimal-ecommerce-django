@@ -292,7 +292,6 @@ class ProductDeleteAPIView(APIView):
         )
 
 
-
 class AddToCartAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -307,18 +306,18 @@ class AddToCartAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart, _ = Cart.objects.get_or_create(user=request.user)
 
-        cart_item, created = CartItem.objects.get_or_create(
+        # Get quantity from request body, default to 1
+        quantity = request.data.get("quantity", 1)
+
+        # Always create a new cart item — even if same product already exists
+        cart_item = CartItem.objects.create(
             cart=cart,
             product=product,
-            defaults={'quantity': 1}
+            quantity=quantity
         )
 
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
-        
         cart_data = {
             "product_id": product.id,
             "product_name": product.name,
@@ -331,7 +330,7 @@ class AddToCartAPIView(APIView):
             data={
                 "cart_item": cart_data
             },
-            status_code=status.HTTP_200_OK
+            status_code=status.HTTP_201_CREATED
         )
 
 
