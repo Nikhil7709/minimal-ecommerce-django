@@ -52,5 +52,7 @@ urlpatterns = [
     path('register-ui/', TemplateView.as_view(template_name='registration.html'), name='register-ui'),
     path('login-ui/', TemplateView.as_view(template_name='login.html'), name='login-ui'),
     path('home/', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('product-ui/', TemplateView.as_view(template_name='product_detail.html'), name='product-ui'),
+
 
 ]

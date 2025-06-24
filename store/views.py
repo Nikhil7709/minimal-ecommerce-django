@@ -195,6 +195,9 @@ class ProductDetailAPIView(APIView):
             "name": serializer.data["name"],
             "price": serializer.data["price"],
             "stock": serializer.data["stock"],
+            "description": serializer.data["description"],
+            "category": serializer.data["category_name"],
+            "image": serializer.data["image"]
         }
 
         return APIResponse(
