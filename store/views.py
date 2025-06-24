@@ -357,7 +357,8 @@ class ViewCartAPIView(APIView):
                 "product": item.product.name,
                 "quantity": item.quantity,
                 "price": str(item.product.price),
-                "total": str(item.quantity * item.product.price)
+                "total": str(item.quantity * item.product.price),
+                "image": item.product.image.url if item.product.image else None,
             }
             for item in items
         ]

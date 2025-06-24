@@ -26,7 +26,6 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('register/', RegisterAPIView.as_view(), name='register'),
     path('login/', LoginAPIView.as_view(), name='login'),
-    # path('logout/', LogoutView.as_view(), name='logout'),
     path('logout/', logout_user, name='logout'),
 
     path('create/', ProductCreateAPIView.as_view(), name='product-create'),
@@ -53,6 +52,7 @@ urlpatterns = [
     path('login-ui/', TemplateView.as_view(template_name='login.html'), name='login-ui'),
     path('home/', TemplateView.as_view(template_name='home.html'), name='home'),
     path('product-ui/', TemplateView.as_view(template_name='product_detail.html'), name='product-ui'),
+    path('cart-ui/', TemplateView.as_view(template_name='cart.html'), name='cart-ui'),
 
 
 ]
