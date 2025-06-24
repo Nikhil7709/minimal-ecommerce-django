@@ -307,16 +307,27 @@ class AddToCartAPIView(APIView):
             )
 
         cart, _ = Cart.objects.get_or_create(user=request.user)
+        quantity = int(request.data.get("quantity", 1))
 
-        # Get quantity from request body, default to 1
-        quantity = request.data.get("quantity", 1)
+        # Check stock availability
+        if product.stock < quantity:
+            return Response(
+                {
+                    "error": "Not enough stock available"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # Always create a new cart item — even if same product already exists
+        # Create cart item
         cart_item = CartItem.objects.create(
             cart=cart,
             product=product,
             quantity=quantity
         )
+
+        # Decrease product stock
+        product.stock -= quantity
+        product.save()
 
         cart_data = {
             "product_id": product.id,

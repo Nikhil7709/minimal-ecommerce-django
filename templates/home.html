@@ -142,14 +142,18 @@ async function addToCart(button, productId) {
   const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
 
   try {
-    for (let i = 0; i < quantity; i++) {
-      await fetch(`/api/store/cart/add/${productId}/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+    const response = await fetch(`/api/store/cart/add/${productId}/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ quantity })
+    });
+
+    if (!response.ok) {
+      const result = await response.json();
+      throw new Error(result?.error || 'Failed to add to cart');
     }
 
     // Redirect to cart page after adding
