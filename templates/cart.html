@@ -18,7 +18,6 @@
 {% block extra_js %}
 <script>
 
-// ✅ Global scope - accessible from HTML onclick
 function removeFromCart(productId) {
   const token = localStorage.getItem("token");
   console.log("Removing product ID:", productId);
@@ -33,7 +32,7 @@ function removeFromCart(productId) {
     if (!response.ok) {
       console.error("Failed to remove item.");
     }
-    location.reload(); // Refresh cart
+    location.reload();
   })
   .catch(err => {
     console.error("Error removing item:", err);
@@ -82,8 +81,10 @@ document.addEventListener("DOMContentLoaded", function () {
           ? item.image
           : `/media/${item.image}`;
 
+        const productDetailUrl = `/api/store/product-ui/?id=${item.product_id}`;
+
         card.innerHTML = `
-          <div class="card h-100 shadow-sm">
+          <div class="card h-100 shadow-sm product-card" data-url="${productDetailUrl}" style="cursor: pointer;">
             <div class="row g-0 h-100">
               <div class="col-8">
                 <div class="card-body d-flex flex-column h-100">
@@ -91,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   <p class="card-text mb-1">Price: ₹${item.price}</p>
                   <p class="card-text mb-1">Quantity: <strong>${item.quantity}</strong></p>
                   <p class="card-text fw-bold">Total: ₹${item.total}</p>
-                  <button class="btn btn-danger btn-sm mt-auto" onclick="removeFromCart(${item.product_id})">
+                  <button class="btn btn-danger btn-sm mt-auto remove-btn" onclick="event.stopPropagation(); removeFromCart(${item.product_id})">
                     <i class="fas fa-trash"></i> Remove
                   </button>
                 </div>
@@ -102,7 +103,16 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
           </div>
         `;
+
         cartContainer.appendChild(card);
+      });
+
+      // 🔗 Make entire card clickable (except Remove button)
+      document.querySelectorAll(".product-card").forEach(card => {
+        card.addEventListener("click", function () {
+          const url = this.getAttribute("data-url");
+          window.location.href = url;
+        });
       });
 
     } catch (err) {
