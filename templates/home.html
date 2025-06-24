@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button class="btn btn-sm btn-outline-secondary" onclick="increaseQty(this)">+</button>
             </div>
 
-            <button class="btn btn-outline-primary mt-auto w-100">
+            <button class="btn btn-outline-primary mt-auto w-100" onclick="addToCart(this, ${product.id})">
                 <i class="fas fa-cart-plus"></i> Add to Cart
             </button>
 
@@ -130,6 +130,37 @@ window.viewProductDetail = function(id, btn) {
   const quantity = qtyInput ? qtyInput.value : 1;
   window.location.href = `/api/store/product-ui/?id=${id}&qty=${quantity}`;
 };
+
+async function addToCart(button, productId) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "/api/store/login-ui/";
+    return;
+  }
+
+  const qtyInput = button.closest('.card-body').querySelector('input[type="number"]');
+  const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
+
+  try {
+    for (let i = 0; i < quantity; i++) {
+      await fetch(`/api/store/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
+    // Redirect to cart page after adding
+    window.location.href = "/api/store/cart-ui/";
+
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    alert("Something went wrong while adding the product to the cart.");
+  }
+}
+
 
 </script>
 {% endblock %}

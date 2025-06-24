@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const imageUrl = item.image?.startsWith("http") || item.image?.startsWith("/media/")
         ? item.image
         : `/media/${item.image}`;
+
     card.innerHTML = `
         <div class="card h-100 shadow-sm">
         <div class="row g-0 h-100">
