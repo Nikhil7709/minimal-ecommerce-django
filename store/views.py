@@ -21,6 +21,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 # Create your views here.
@@ -29,13 +30,10 @@ from datetime import timedelta
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
-    # Set access token lifetime to 30 minutes
-    refresh.access_token.set_exp(lifetime=timedelta(seconds=1800))  # 1800 seconds = 30 minutes
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
-
 
 class RegisterAPIView(APIView):
     """
@@ -118,7 +116,6 @@ class LoginAPIView(APIView):
 def logout_user(request):
     return redirect('/api/store/login-ui/')
 
-from rest_framework.parsers import MultiPartParser, FormParser
 
 class ProductCreateAPIView(APIView):
     """

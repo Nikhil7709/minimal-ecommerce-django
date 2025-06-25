@@ -156,7 +156,6 @@ async function addToCart(button, productId) {
       throw new Error(result?.error || 'Failed to add to cart');
     }
 
-    // Redirect to cart page after adding
     window.location.href = "/api/store/cart-ui/";
 
   } catch (err) {

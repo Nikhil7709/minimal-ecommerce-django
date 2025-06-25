@@ -23,9 +23,10 @@
         <button class="btn btn-sm btn-outline-secondary" onclick="increaseQty()">+</button>
       </div>
 
-      <button class="btn btn-success mt-3">
+      <button class="btn btn-success mt-3" onclick="addToCart()">
         <i class="fas fa-cart-plus"></i> Add to Cart
       </button>
+
     </div>
   </div>
 </div>
@@ -89,6 +90,43 @@ function decreaseQty() {
   const input = document.getElementById("qty-input");
   if (parseInt(input.value) > 1) {
     input.value = parseInt(input.value) - 1;
+  }
+}
+
+
+async function addToCart() {
+  const token = localStorage.getItem("token");
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get("id");
+  const quantity = parseInt(document.getElementById("qty-input").value);
+
+  if (!productId || quantity < 1) {
+    alert("Invalid product or quantity.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/store/cart/add/${productId}/`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ quantity })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      alert(data.error || data.message || "Failed to add to cart");
+      return;
+    }
+
+    window.location.href = "/api/store/cart-ui/";
+
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    alert("An error occurred while adding to cart.");
   }
 }
 
