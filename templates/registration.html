@@ -30,40 +30,38 @@
     </form>
   </div>
 </div>
-
+{% endblock %}
 
 {% block extra_js %}
 <script>
-document.getElementById('login-form').addEventListener('submit', async function (e) {
+document.getElementById('register-form').addEventListener('submit', async function (e) {
   e.preventDefault();
 
+  const name = document.getElementById('name').value;
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  const response = await fetch('/api/store/login/', {
+  const response = await fetch('/api/store/register/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ name, email, password })
   });
 
-  const alertBox = document.getElementById('login-alert');
+  const alertBox = document.getElementById('register-alert');
   const data = await response.json();
 
   if (response.ok && data.success) {
     alertBox.classList.remove('d-none', 'alert-danger');
     alertBox.classList.add('alert', 'alert-success');
-    alertBox.innerText = data.message;
-    document.getElementById('login-form').reset();
-
-    // Store token in localStorage or cookie if needed
-    console.log("JWT Token:", data.data.token);
-
+    alertBox.innerText = data.message || "Registration successful! Redirecting to login...";
+    setTimeout(() => {
+      window.location.href = '/api/store/login-ui/';
+    }, 1500);
   } else {
     alertBox.classList.remove('d-none', 'alert-success');
     alertBox.classList.add('alert', 'alert-danger');
-    alertBox.innerText = data.error_message || "Login failed.";
+    alertBox.innerText = data.error_message || "Registration failed.";
   }
 });
 </script>
-
 {% endblock %}

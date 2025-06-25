@@ -25,8 +25,12 @@ from django.utils.decorators import method_decorator
 
 # Create your views here.
 
+from datetime import timedelta
+
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
+    # Set access token lifetime to 30 minutes
+    refresh.access_token.set_exp(lifetime=timedelta(seconds=1800))  # 1800 seconds = 30 minutes
     return {
         'refresh': str(refresh),
         'access': str(refresh.access_token),
@@ -38,9 +42,7 @@ class RegisterAPIView(APIView):
     API view for user registration.
     Handles user registration by validating input data and creating a new user.
     """
-    print("line 39 RegisterAPIView initialized")
     def post(self, request):
-        print("line 41 RegisterAPIView post method called")
 
         # Validate the request data using the RegisterSerializer
         serializer = RegisterSerializer(data=request.data)
