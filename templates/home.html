@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function fetchProducts(categorySlug = '') {
-    const res = await fetch('/api/store/', {
+    const res = await fetch('/api/store/product-list/', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 

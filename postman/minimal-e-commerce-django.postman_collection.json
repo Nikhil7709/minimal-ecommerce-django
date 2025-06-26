@@ -1,0 +1,842 @@
+{
+	"info": {
+		"_postman_id": "8bf2d12d-90dc-40e6-a19a-07851db455cb",
+		"name": "minimal-e-commerce-django",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26904606"
+	},
+	"item": [
+		{
+			"name": "Registration",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"test4@gmail.com\",\n    \"name\": \"Test User3\",\n    // \"password\": \"test124\"\n    \"password\": \"test3\"\n\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/register/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwOTIxODExLCJpYXQiOjE3NTA5MjE1MTEsImp0aSI6IjliN2M4NTFlNDU0ZTRmZjBiOTZjZmZiMjVhYTFhMThkIiwidXNlcl9pZCI6M30.ddpzBFZrpa2rxZ5u2oB66ZD_d2nvnOMgWmBslrjqatI",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"admin1@gmail.com\",\n    // \"name\": \"Test User1\",\n    \"password\": \"admin\"\n}\n\n// {\n//     \"email\": \"nikhil@gmail.com\",\n//     // \"name\": \"Test User1\",\n//     \"password\": \"nikhil\"\n// }\n\n\n// {\n//     \"email\": \"testuser2@gmail.com\",\n//     // \"name\": \"Test User1\",\n//     \"password\": \"test2\"\n// }\n\n// {\n//     \"email\": \"testuser2@gmail.com\",\n//     // \"name\": \"Test User1\",\n//     \"password\": \"test2\"\n// }\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/login/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Product Creation",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNjk0MTc1LCJpYXQiOjE3NTA2OTM4NzUsImp0aSI6IjkxOTYwMTgwYzZjOTQzNDFhOTU2Y2I2YWYwODhiNjNmIiwidXNlcl9pZCI6Mn0.EEU9dIVpSH29s87P_5Y7PhVdyyUs3nNej34-tpByiAo",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"RealMe\",\n  \"description\": \"A phone with latest technologies\",\n  \"price\": 12000,\n  \"stock\": 5,\n  \"category\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/create/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add To Cart",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNzYwODc0LCJpYXQiOjE3NTA3NjA1NzQsImp0aSI6ImFhOTNkMjRlMWE4MTQ4OGViMjhjZTExMzdkN2RmODg5IiwidXNlcl9pZCI6Mn0.UWGHtio57tPGe3BMf3Pl6b4KPtLBbA6d0aK7XUxE9O0",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/cart/add/2/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"cart",
+						"add",
+						"2",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove From Cart",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNTczMjQ2LCJpYXQiOjE3NTA1NzI5NDYsImp0aSI6ImExZDdlMDk4ODdjZjRhMTQ4OGI5MzkzODUwNzdhYjI0IiwidXNlcl9pZCI6M30.1LB0l67LoId_dxAKJmAMYNKU0MYzGD8yAGwdHeFHhnM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/cart/remove/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"cart",
+						"remove",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place Order",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNTc4NTQxLCJpYXQiOjE3NTA1NzgyNDEsImp0aSI6IjE3NzQ4Yzk1ODUzYTQ2OGZiNWY1ZmRiNDllNDMzN2RmIiwidXNlcl9pZCI6M30.VNaMjBze9mcERtC_TulCnW4vC_aWCGLxC2rvrWtDk6k",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/order/place/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"order",
+						"place",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Category APIView",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNTg1MjU1LCJpYXQiOjE3NTA1ODQ5NTUsImp0aSI6IjY1YTU5ODM3MjkxODQ4MmVhNzIyNjI1YTYxNmE1ZTM4IiwidXNlcl9pZCI6NX0.Go7s6PuvHvqnlTOUJQJPcNs-5rdFH_tgYsG6c7Rz_oY",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }\n\n\n{\n  \"name\": \"Home Appliances\",\n  \"slug\": \"home_appliances\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/admin/category/create/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"admin",
+						"category",
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order Checkout",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwOTIwNjczLCJpYXQiOjE3NTA5MjAzNzMsImp0aSI6IjZmN2ZiY2Y2MGExMjQ5NTY5YTdhYTZhNWY4OWNmNDVhIiwidXNlcl9pZCI6M30.9l2l_wNfk4n0Hmp9tOqTiSPBLsppqdLFwRrSND1f2mQ",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }\n\n\n{\n  \"name\": \"Home Appliances\",\n  \"slug\": \"home_appliances\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/orders/checkout/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"orders",
+						"checkout",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Specific product checkout",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwOTIyOTk4LCJpYXQiOjE3NTA5MjI2OTgsImp0aSI6IjhlMGNlNjdkNzQwZTRmODhhMmEzN2RlMzhhNjkxNjJiIiwidXNlcl9pZCI6M30.5_EDmKmY270Wtz56ot9SB9807dtF27gdbLnhndKcm6w",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n      \"product_ids\": [2, 3]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/orders/checkout/selected/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"orders",
+						"checkout",
+						"selected",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order History",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwOTI0ODE0LCJpYXQiOjE3NTA5MjQ1MTQsImp0aSI6IjA1YWM0MjQ0ODVjMTQyMjViOTg1ZWUwYWU2YmUxMDI4IiwidXNlcl9pZCI6M30.xWnL-zlIPDeUd4JgUYfcgwV4Cj3JImiMbQNL2vggBtM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/orders/history/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"orders",
+						"history",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET category list",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNjk0NTAxLCJpYXQiOjE3NTA2OTQyMDEsImp0aSI6IjRhNzFhMDgzYjcyYTQ0YTRiN2VhZWNkM2NhMzYwNGRiIiwidXNlcl9pZCI6Mn0.Nv1E4s222ba_BKBhzfR0Ng5AOsWhSq21SLT-gZFXk8A",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/admin/category/list/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"admin",
+						"category",
+						"list",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Category Update Permissions",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNjAyMjg2LCJpYXQiOjE3NTA2MDE5ODYsImp0aSI6ImVjM2E1ZDE5MTQ2YzQ2MWRhNzkxYjMzMGNkMDA1ZTVhIiwidXNlcl9pZCI6M30.r-eBCoSgUz6q7_1ASkDXTz66sZ9uFadqQmwcVv3ea58",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }\n\n\n{\n  \"name\": \"Clothes\",\n  \"slug\": \"clothes\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/admin/category/update/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"admin",
+						"category",
+						"update",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Category Delete",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNjAyNzc2LCJpYXQiOjE3NTA2MDI0NzYsImp0aSI6IjJiYWUwNTFiZDMyNzRhZmRiZTc3MGJkZjNhNzk0OTdmIiwidXNlcl9pZCI6M30.3U4LKXCRTTWz0-zTioMnk2YKGdaSkMTBBS9GlbikBA4",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }\n\n\n{\n  \"name\": \"Clothes\",\n  \"slug\": \"clothes\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/admin/category/delete/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"admin",
+						"category",
+						"delete",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Cart",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNzYwOTkzLCJpYXQiOjE3NTA3NjA2OTMsImp0aSI6IjViY2I2NDdlMjU2YjQ5NzViNTUxNTJiODIxOTljNDk4IiwidXNlcl9pZCI6Mn0.fvlWKVUjniTpRKQodWB9l0JOciVEv1kzL7uQdWzKsZk",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/cart/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"cart",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Product Listing",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNjk0NTU2LCJpYXQiOjE3NTA2OTQyNTYsImp0aSI6IjUxMTY4NWNiMjI0MTQzM2FiZGZiZDFkZTk1ZTAyMjJmIiwidXNlcl9pZCI6Mn0.n_mzCEb9oLnPsj1LnhcBKbFzF9AioXLUuLspFpdcZ4Q",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Product Details",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNjk3NTExLCJpYXQiOjE3NTA2OTcyMTEsImp0aSI6IjlhZWE4Yjc5MTc0ZjQ5MGFhNzUwOTc3MjNmM2QzNGI4IiwidXNlcl9pZCI6Mn0.mRT3HYz-vLC6_rQllDZoFud4lxSqKEqhs0DrMisT620",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Product Update",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNjk4MDY3LCJpYXQiOjE3NTA2OTc3NjcsImp0aSI6IjI4NDBkNjEwOTJkZDRmNDI5ZjlhZDI4ZWUwMzhiOGE4IiwidXNlcl9pZCI6Mn0.QBfBzgg19QCh9XbwvNzivwA05VOkQbZc9xVavu8LSkE",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }\n\n\n{\n  \"name\": \"watch\",\n  \"price\": 899.99,\n  \"stock\": 50\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/store/product/2/update/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"store",
+						"product",
+						"2",
+						"update",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order History",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNjg0MzMwLCJpYXQiOjE3NTA2ODQwMzAsImp0aSI6ImEzMGE4YWZjYTgxOTRlNjI5YmVhMGM3YTNlYmU0ZTI5IiwidXNlcl9pZCI6Mn0.gOk6GzE18BJ0OE_MDkiuzRiDtL--P2CuoSzOW8Mlr8c",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\n//   \"name\": \"Apple Watch\",\n//   \"description\": \"Smart watch with fitness features\",\n//   \"price\": 15999.99,\n//   \"stock\": 25,\n//   \"category\": 1\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000//api/store/orders/history/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"",
+						"api",
+						"store",
+						"orders",
+						"history",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

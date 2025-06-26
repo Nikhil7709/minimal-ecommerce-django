@@ -1,5 +1,3 @@
-console.log("scripts.js loaded");
-
 document.getElementById('register-form').addEventListener('submit', async function (e) {
   e.preventDefault();
 
