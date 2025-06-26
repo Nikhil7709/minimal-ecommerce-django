@@ -70,7 +70,8 @@ DB_PORT=5432
   python manage.py test
   ```
 - Collect static files:
-  ```python manage.py collectstatic --noinput
+  ```
+  python manage.py collectstatic --noinput
   ```
 
 ## Notes
