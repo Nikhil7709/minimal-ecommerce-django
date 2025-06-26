@@ -117,6 +117,10 @@ class LoginAPIView(APIView):
         )
 
 def logout_user(request):
+    """
+    Handles user logout by invalidating the JWT token.
+    Redirects to the login UI after successful logout.
+    """
     return redirect('/api/store/login-ui/')
 
 
@@ -180,6 +184,7 @@ class ProductListAPIView(APIView):
 
 
 class ProductDetailAPIView(APIView):
+    """ API view for retrieving product details."""
     def get(self, request, pk):
         try:
             product = Product.objects.get(pk=pk)
@@ -295,6 +300,9 @@ class ProductDeleteAPIView(APIView):
 
 
 class AddToCartAPIView(APIView):
+    """
+    API view for adding a product to the cart.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, product_id):
@@ -348,6 +356,7 @@ class AddToCartAPIView(APIView):
 
 
 class ViewCartAPIView(APIView):
+    """API view for viewing the user's cart."""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -387,6 +396,7 @@ class ViewCartAPIView(APIView):
 
 
 class RemoveFromCartAPIView(APIView):
+    """API view for removing an item from the user's cart."""
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, product_id):
@@ -427,6 +437,9 @@ class RemoveFromCartAPIView(APIView):
 
 
 class PlaceOrderAPIView(APIView):
+    """
+    API view for placing an order.
+    """
     permission_classes = [IsAuthenticated]
 
     @transaction.atomic
@@ -468,7 +481,7 @@ class PlaceOrderAPIView(APIView):
         # Step 2: Create Order
         order = Order.objects.create(
             user=user,
-            total_amount=0,  # temporary, will be updated below
+            total_amount=0,
             status="PENDING",
             created_by=user.email,
             updated_by=user.email
@@ -515,6 +528,7 @@ class PlaceOrderAPIView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateCategoryAPIView(APIView):
+    """API view for creating a new category."""
     permission_classes = [permissions.IsAuthenticated, IsAdminUser]
 
     def post(self, request):
@@ -549,6 +563,7 @@ class CreateCategoryAPIView(APIView):
 
 
 class CategoryListAPIView(APIView):
+    """API view for listing all categories."""
      # TODO: Add pagination to the category list
     permission_classes = [permissions.IsAuthenticated]
 
@@ -578,6 +593,8 @@ class CategoryListAPIView(APIView):
 
 
 class CategoryUpdateAPIView(APIView):
+    """API view for updating a category."""
+    # Only admin users can update categories
     permission_classes = [permissions.IsAuthenticated, IsAdminUser]
 
     def put(self, request, pk):
@@ -619,6 +636,8 @@ class CategoryUpdateAPIView(APIView):
 
 
 class CategoryDeleteAPIView(APIView):
+    """API view for deleting a category."""
+    # Only admin users can delete categories
     permission_classes = [permissions.IsAuthenticated, IsAdminUser]
 
     def delete(self, request, pk):
