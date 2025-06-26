@@ -1,7 +1,6 @@
 from django.urls import path
 from store.views import (
     AddToCartAPIView,
-    OrderHistoryAPIView,
     PlaceOrderAPIView,
     ProductDetailAPIView,
     ProductListAPIView,
@@ -18,6 +17,7 @@ from store.views import (
     CategoryDeleteAPIView,
     logout_user,
     OrderCheckoutAPIView,
+    OrderHistoryAPIView,
 )
 from django.views.generic import TemplateView
 
@@ -47,7 +47,9 @@ urlpatterns = [
 
     path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
     path('orders/checkout/', OrderCheckoutAPIView.as_view(), name='order-checkout'),
+    path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
 
+    # UI paths
     path('register-ui/', TemplateView.as_view(template_name='registration.html'), name='register-ui'),
     path('login-ui/', TemplateView.as_view(template_name='login.html'), name='login-ui'),
     path('home/', TemplateView.as_view(template_name='home.html'), name='home'),

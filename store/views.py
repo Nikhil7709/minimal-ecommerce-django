@@ -730,3 +730,28 @@ class OrderCheckoutAPIView(APIView):
             },
             status_code=status.HTTP_201_CREATED
         )
+
+
+class OrderHistoryAPIView(APIView):
+    """
+    Returns the list of past orders for the authenticated user.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(
+            user=request.user
+        ).order_by(
+            '-ordered_at'
+        )
+
+        serializer = OrderSerializer(orders, many=True)
+
+        return APIResponse(
+            success=True,
+            message="Order history fetched successfully.",
+            data={
+                "orders": serializer.data
+            },
+            status_code=status.HTTP_200_OK
+        )
