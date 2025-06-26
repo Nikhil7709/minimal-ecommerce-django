@@ -732,6 +732,80 @@ class OrderCheckoutAPIView(APIView):
         )
 
 
+class SelectiveCheckoutAPIView(APIView):
+    """
+    Checkout only selected products from the user's cart.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        product_ids = request.data.get("product_ids", [])
+
+        if not isinstance(product_ids, list) or not product_ids:
+            return APIResponse(
+                success=False,
+                message="product_ids must be a non-empty list.",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            cart = Cart.objects.get(user=request.user)
+        except Cart.DoesNotExist:
+            return APIResponse(
+                success=False,
+                message="Cart not found.",
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+
+        cart_items = CartItem.objects.filter(
+            cart=cart,
+            product_id__in=product_ids
+        )
+
+        if not cart_items.exists():
+            return APIResponse(
+                success=False,
+                message="No matching items found in cart.",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        total_amount = Decimal("0.00")
+        for item in cart_items:
+            total_amount += item.product.price * item.quantity
+
+        # Create order
+        order = Order.objects.create(
+            user=request.user,
+            total_amount=total_amount,
+            status=STATUSCHOICES.PENDING
+        )
+
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price_at_order_time=item.product.price
+            )
+
+            # Reduce stock
+            item.product.stock -= item.quantity
+            item.product.save()
+
+        # Remove only the checked-out items
+        cart_items.delete()
+
+        serializer = OrderSerializer(order)
+        return APIResponse(
+            success=True,
+            message="Selected items checked out successfully.",
+            data={
+                "order": serializer.data
+            },
+            status_code=status.HTTP_201_CREATED
+        )
+
+
 class OrderHistoryAPIView(APIView):
     """
     Returns the list of past orders for the authenticated user.

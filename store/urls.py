@@ -9,6 +9,7 @@ from store.views import (
     LoginAPIView,
     ProductCreateAPIView,
     ProductDeleteAPIView,
+    SelectiveCheckoutAPIView,
     ViewCartAPIView,
     RemoveFromCartAPIView,
     CreateCategoryAPIView,
@@ -47,6 +48,7 @@ urlpatterns = [
 
     path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
     path('orders/checkout/', OrderCheckoutAPIView.as_view(), name='order-checkout'),
+    path('orders/checkout/selected/', SelectiveCheckoutAPIView.as_view(), name='selective-checkout'),
     path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
 
     # UI paths
