@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cart | MyShop{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3 class="mb-4">Your Cart</h3>
+  <div id="cart-container" class="row"></div>
+  <div id="empty-cart" class="text-center text-muted mt-5" style="display: none;">
+    <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+    <p>Your cart is empty.</p>
+    <a href="/api/store/home/" class="btn btn-primary">Continue Shopping</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+function removeFromCart(productId) {
+  const token = localStorage.getItem("token");
+  console.log("Removing product ID:", productId);
+
+  fetch(`/api/store/cart/remove/${productId}/`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      console.error("Failed to remove item.");
+    }
+    location.reload();
+  })
+  .catch(err => {
+    console.error("Error removing item:", err);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "/api/store/login-ui/";
+    return;
+  }
+
+  fetchCartItems();
+
+  async function fetchCartItems() {
+    try {
+      const response = await fetch("/api/store/cart/", {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch cart items");
+      }
+
+      const result = await response.json();
+      const cartContainer = document.getElementById("cart-container");
+      const emptyCart = document.getElementById("empty-cart");
+
+      cartContainer.innerHTML = '';
+
+      const items = result.data.cart;
+
+      if (items.length === 0) {
+        emptyCart.style.display = 'block';
+        return;
+      }
+
+      items.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "col-md-6 mb-4";
+
+        const imageUrl = item.image?.startsWith("http") || item.image?.startsWith("/media/")
+          ? item.image
+          : `/media/${item.image}`;
+
+        const productDetailUrl = `/api/store/product-ui/?id=${item.product_id}`;
+
+        card.innerHTML = `
+          <div class="card h-100 shadow-sm product-card" data-url="${productDetailUrl}" style="cursor: pointer;">
+            <div class="row g-0 h-100">
+              <div class="col-8">
+                <div class="card-body d-flex flex-column h-100">
+                  <h5 class="card-title">${item.product}</h5>
+                  <p class="card-text mb-1">Price: ₹${item.price}</p>
+                  <p class="card-text mb-1">Quantity: <strong>${item.quantity}</strong></p>
+                  <p class="card-text fw-bold">Total: ₹${item.total}</p>
+                  <button class="btn btn-danger btn-sm mt-auto remove-btn" onclick="event.stopPropagation(); removeFromCart(${item.product_id})">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </div>
+              </div>
+              <div class="col-4 d-flex align-items-center p-2">
+                <img src="${imageUrl}" class="img-fluid rounded" alt="${item.product}" style="max-height: 120px; object-fit: contain;">
+              </div>
+            </div>
+          </div>
+        `;
+
+        cartContainer.appendChild(card);
+      });
+
+      // 🔗 Make entire card clickable (except Remove button)
+      document.querySelectorAll(".product-card").forEach(card => {
+        card.addEventListener("click", function () {
+          const url = this.getAttribute("data-url");
+          window.location.href = url;
+        });
+      });
+
+    } catch (err) {
+      console.error("Error fetching cart items:", err);
+    }
+  }
+});
+</script>
+{% endblock %}
+

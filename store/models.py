@@ -83,6 +83,11 @@ class Product(AbstractAuditCreator, AbstractAuditUpdater):
         max_digits=10,
         decimal_places=2
     )
+    image = models.ImageField(
+        upload_to='product_images/',
+        blank=True,
+        null=True
+    )
     stock = models.PositiveIntegerField()
 
     # F.Ks
@@ -138,7 +143,6 @@ class CartItem(AbstractAuditCreator, AbstractAuditUpdater):
         return f"{self.cart} - {self.product}"
 
     class Meta:
-        unique_together = ["cart", "product"]
         verbose_name = "Cart Item"
         verbose_name_plural = "5. Cart Items"
 

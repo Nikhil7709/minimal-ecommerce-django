@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Detail | MyShop{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-5">
+      <img id="product-image" src="https://via.placeholder.com/400" class="img-fluid rounded" alt="Product Image">
+    
+    </div>
+    <div class="col-md-7">
+      <h3 id="product-name">Loading...</h3>
+      <p class="text-muted" id="product-category"></p>
+      <p id="product-description"></p>
+      <p class="fw-bold" id="product-price"></p>
+      <p id="product-stock"></p>
+      <div class="d-flex justify-content-start align-items-center gap-2 mt-3">
+        <button class="btn btn-sm btn-outline-secondary" onclick="decreaseQty()">-</button>
+        <input type="number" id="qty-input" class="form-control form-control-sm text-center"
+                value="1" min="1" style="width: 50px;" readonly>
+        <button class="btn btn-sm btn-outline-secondary" onclick="increaseQty()">+</button>
+      </div>
+
+      <button class="btn btn-success mt-3" onclick="addToCart()">
+        <i class="fas fa-cart-plus"></i> Add to Cart
+      </button>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "/api/store/login-ui/";
+    return;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get('id');
+
+  if (!productId) {
+    document.body.innerHTML = "<p class='text-danger text-center mt-5'>Invalid Product ID</p>";
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/store/${productId}/`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      document.body.innerHTML = `<p class="text-danger text-center mt-5">${data.message}</p>`;
+      return;
+    }
+
+    const product = data.data.product;
+
+    document.getElementById("product-name").innerText = product.name;
+    document.getElementById("product-description").innerText = product.description || "No description available.";
+    document.getElementById("product-price").innerText = `Price: ₹${product.price}`;
+    document.getElementById("product-stock").innerText = `Stock: ${product.stock}`;
+    document.getElementById("product-category").innerText = `Category: ${product.category}`;
+
+    const imageUrl = product.image
+        ? (product.image.startsWith('http') || product.image.startsWith('/media') ? product.image : `/media/${product.image}`)
+        : "https://via.placeholder.com/400";
+
+    document.getElementById("product-image").src = imageUrl;
+    document.getElementById("product-image").alt = product.name;
+
+} catch (err) {
+    console.error("Error loading product:", err);
+  }
+});
+
+function increaseQty() {
+  const input = document.getElementById("qty-input");
+  input.value = parseInt(input.value) + 1;
+}
+
+function decreaseQty() {
+  const input = document.getElementById("qty-input");
+  if (parseInt(input.value) > 1) {
+    input.value = parseInt(input.value) - 1;
+  }
+}
+
+
+async function addToCart() {
+  const token = localStorage.getItem("token");
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get("id");
+  const quantity = parseInt(document.getElementById("qty-input").value);
+
+  if (!productId || quantity < 1) {
+    alert("Invalid product or quantity.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/store/cart/add/${productId}/`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ quantity })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      alert(data.error || data.message || "Failed to add to cart");
+      return;
+    }
+
+    window.location.href = "/api/store/cart-ui/";
+
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    alert("An error occurred while adding to cart.");
+  }
+}
+
+
+</script>
+{% endblock %}

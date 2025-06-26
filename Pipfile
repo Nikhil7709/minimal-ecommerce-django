@@ -12,6 +12,7 @@ django-extensions = "*"
 django-shell-plus = "*"
 djangorestframework = "*"
 djangorestframework-simplejwt = "*"
+pillow = "*"
 
 [dev-packages]
 

@@ -1,3 +1,5 @@
+from django.shortcuts import redirect
+from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -19,9 +21,12 @@ from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 # Create your views here.
+
+from datetime import timedelta
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -30,13 +35,13 @@ def get_tokens_for_user(user):
         'access': str(refresh.access_token),
     }
 
-
 class RegisterAPIView(APIView):
     """
     API view for user registration.
     Handles user registration by validating input data and creating a new user.
     """
     def post(self, request):
+
         # Validate the request data using the RegisterSerializer
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -108,6 +113,9 @@ class LoginAPIView(APIView):
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
+def logout_user(request):
+    return redirect('/api/store/login-ui/')
+
 
 class ProductCreateAPIView(APIView):
     """
@@ -115,6 +123,8 @@ class ProductCreateAPIView(APIView):
     Handles product creation by validating input data and saving the product.
     """
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
 
     def post(self, request):
         # Validate the request data using the ProductCreateSerializer
@@ -184,6 +194,9 @@ class ProductDetailAPIView(APIView):
             "name": serializer.data["name"],
             "price": serializer.data["price"],
             "stock": serializer.data["stock"],
+            "description": serializer.data["description"],
+            "category": serializer.data["category_name"],
+            "image": serializer.data["image"]
         }
 
         return APIResponse(
@@ -200,6 +213,7 @@ class ProductUpdateAPIView(APIView):
     Only the admin or the user who created the product can update it.
     """
     permission_classes = [permissions.IsAuthenticated, IsAdminOrProductCreator]
+    parser_classes = [MultiPartParser, FormParser]
 
     def put(self, request, pk):
         try:
@@ -277,7 +291,6 @@ class ProductDeleteAPIView(APIView):
         )
 
 
-
 class AddToCartAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -292,18 +305,29 @@ class AddToCartAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        quantity = int(request.data.get("quantity", 1))
 
-        cart_item, created = CartItem.objects.get_or_create(
+        # Check stock availability
+        if product.stock < quantity:
+            return Response(
+                {
+                    "error": "Not enough stock available"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Create cart item
+        cart_item = CartItem.objects.create(
             cart=cart,
             product=product,
-            defaults={'quantity': 1}
+            quantity=quantity
         )
 
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
-        
+        # Decrease product stock
+        product.stock -= quantity
+        product.save()
+
         cart_data = {
             "product_id": product.id,
             "product_name": product.name,
@@ -316,7 +340,7 @@ class AddToCartAPIView(APIView):
             data={
                 "cart_item": cart_data
             },
-            status_code=status.HTTP_200_OK
+            status_code=status.HTTP_201_CREATED
         )
 
 
@@ -339,10 +363,12 @@ class ViewCartAPIView(APIView):
         items = CartItem.objects.filter(cart=cart)
         cart_data = [
             {
+                "product_id": item.product.id,
                 "product": item.product.name,
                 "quantity": item.quantity,
                 "price": str(item.product.price),
-                "total": str(item.quantity * item.product.price)
+                "total": str(item.quantity * item.product.price),
+                "image": item.product.image.url if item.product.image else None,
             }
             for item in items
         ]
@@ -360,26 +386,41 @@ class ViewCartAPIView(APIView):
 class RemoveFromCartAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, product_id):
+    def delete(self, request, product_id):
         try:
             cart = Cart.objects.get(user=request.user)
-            cart_item = CartItem.objects.get(cart=cart, product_id=product_id)
-        except (Cart.DoesNotExist, CartItem.DoesNotExist):
+            cart_item = CartItem.objects.filter(cart=cart, product_id=product_id).first()
+
+            if not cart_item:
+                return APIResponse(
+                    success=False,
+                    message="Item not found in cart.",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    data={}
+                )
+
+            # Restore product stock
+            product = cart_item.product
+            product.stock += cart_item.quantity
+            product.save()
+
+            # Delete the cart item
+            cart_item.delete()
+
+            return APIResponse(
+                success=True,
+                message="Item removed from cart successfully.",
+                data={},
+                status_code=status.HTTP_200_OK
+            )
+
+        except Cart.DoesNotExist:
             return APIResponse(
                 success=False,
-                message="Item not found in cart.",
+                message="Cart does not exist.",
                 status_code=status.HTTP_404_NOT_FOUND,
                 data={}
             )
-
-        cart_item.delete()
-
-        return APIResponse(
-            success=True,
-            message="Item removed from cart successfully.",
-            data={},
-            status_code=status.HTTP_200_OK
-        )
 
 
 class PlaceOrderAPIView(APIView):
