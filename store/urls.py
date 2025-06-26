@@ -8,7 +8,6 @@ from store.views import (
     ProductUpdateAPIView,
     RegisterAPIView,
     LoginAPIView,
-    # LogoutView,
     ProductCreateAPIView,
     ProductDeleteAPIView,
     ViewCartAPIView,
@@ -18,6 +17,7 @@ from store.views import (
     CategoryUpdateAPIView,
     CategoryDeleteAPIView,
     logout_user,
+    OrderCheckoutAPIView,
 )
 from django.views.generic import TemplateView
 
@@ -46,7 +46,7 @@ urlpatterns = [
     path('admin/category/delete/<int:pk>/', CategoryDeleteAPIView.as_view(), name='admin-category-delete'),
 
     path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
-
+    path('orders/checkout/', OrderCheckoutAPIView.as_view(), name='order-checkout'),
 
     path('register-ui/', TemplateView.as_view(template_name='registration.html'), name='register-ui'),
     path('login-ui/', TemplateView.as_view(template_name='login.html'), name='login-ui'),

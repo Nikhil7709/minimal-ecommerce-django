@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.shortcuts import redirect
 from django.views import View
 from rest_framework.views import APIView
@@ -5,11 +6,13 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 from libs.response import APIResponse
+from store import STATUSCHOICES
 from store.models import Cart, CartItem, Category, Order, OrderItem, Product
 from store.permissions import IsAdminOrProductCreator, IsAdminUser
 from store.serializers import (
     CategorySerializer,
     LoginSerializer,
+    OrderSerializer,
     ProductCreateSerializer,
     ProductDetailSerializer,
     ProductListSerializer,
@@ -666,3 +669,64 @@ class OrderHistoryAPIView(APIView):
             status_code=status.HTTP_200_OK
         )
 
+
+class OrderCheckoutAPIView(APIView):
+    """
+    Converts cart into order, clears cart, and returns order summary.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            cart = Cart.objects.get(user=request.user)
+        except Cart.DoesNotExist:
+            return APIResponse(
+                success=False,
+                message="Cart is empty.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                data={}
+            )
+
+        cart_items = CartItem.objects.filter(cart=cart)
+        if not cart_items.exists():
+            return APIResponse(
+                success=False,
+                message="Cart is empty.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                data={}
+            )
+
+        total_amount = Decimal('0.00')
+        for item in cart_items:
+            total_amount += item.product.price * item.quantity
+
+        # Create Order
+        order = Order.objects.create(
+            user=request.user,
+            total_amount=total_amount,
+            status=STATUSCHOICES.PENDING
+        )
+
+        # Create OrderItems and update stock
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price_at_order_time=item.product.price
+            )
+            item.product.stock -= item.quantity
+            item.product.save()
+
+        # Clear cart
+        cart_items.delete()
+
+        serializer = OrderSerializer(order)
+        return APIResponse(
+            success=True,
+            message="Order placed successfully.",
+            data={
+                "order": serializer.data
+            },
+            status_code=status.HTTP_201_CREATED
+        )
