@@ -71,3 +71,21 @@ class OrderHistorySerializer(serializers.ModelSerializer):
             order_items,
             many=True
         ).data
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ["id", "product", "product_name", "quantity", "price_at_order_time"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(
+        source="store_orderitem_order", many=True, read_only=True
+    )
+
+    class Meta:
+        model = Order
+        fields = ["id", "total_amount", "status", "ordered_at", "items"]

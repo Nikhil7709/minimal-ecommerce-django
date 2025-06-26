@@ -6,6 +6,11 @@
 {% block content %}
 <div class="container mt-5">
   <h3 class="mb-4">Your Cart</h3>
+  <div class="text-end mt-4">
+    <button id="checkout-button" class="btn btn-success">
+      <i class="fas fa-credit-card"></i> Checkout
+    </button>
+  </div>
   <div id="cart-container" class="row"></div>
   <div id="empty-cart" class="text-center text-muted mt-5" style="display: none;">
     <i class="fas fa-shopping-cart fa-3x mb-3"></i>
@@ -20,7 +25,6 @@
 
 function removeFromCart(productId) {
   const token = localStorage.getItem("token");
-  console.log("Removing product ID:", productId);
 
   fetch(`/api/store/cart/remove/${productId}/`, {
     method: 'DELETE',
@@ -56,37 +60,36 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch cart items");
-      }
+      if (!response.ok) throw new Error("Failed to fetch cart items");
 
       const result = await response.json();
+      const items = result.data.cart;
       const cartContainer = document.getElementById("cart-container");
       const emptyCart = document.getElementById("empty-cart");
 
       cartContainer.innerHTML = '';
-
-      const items = result.data.cart;
-
       if (items.length === 0) {
         emptyCart.style.display = 'block';
         return;
       }
 
-      items.forEach((item) => {
-        const card = document.createElement("div");
-        card.className = "col-md-6 mb-4";
+      emptyCart.style.display = 'none';
 
+      items.forEach((item) => {
         const imageUrl = item.image?.startsWith("http") || item.image?.startsWith("/media/")
           ? item.image
           : `/media/${item.image}`;
-
         const productDetailUrl = `/api/store/product-ui/?id=${item.product_id}`;
 
+        const card = document.createElement("div");
+        card.className = "col-md-6 mb-4";
         card.innerHTML = `
           <div class="card h-100 shadow-sm product-card" data-url="${productDetailUrl}" style="cursor: pointer;">
             <div class="row g-0 h-100">
-              <div class="col-8">
+              <div class="col-1 d-flex align-items-start p-2">
+                <input type="checkbox" class="form-check-input cart-checkbox" value="${item.product_id}">
+              </div>
+              <div class="col-7">
                 <div class="card-body d-flex flex-column h-100">
                   <h5 class="card-title">${item.product}</h5>
                   <p class="card-text mb-1">Price: ₹${item.price}</p>
@@ -103,13 +106,25 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
           </div>
         `;
-
         cartContainer.appendChild(card);
       });
 
-      // 🔗 Make entire card clickable (except Remove button)
+      // Checkout Button Logic
+      document.getElementById("checkout-button").addEventListener("click", function () {
+        const selectedCheckboxes = document.querySelectorAll(".cart-checkbox:checked");
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+        if (selectedIds.length === 0) {
+          alert("Please select at least one item to checkout.");
+          return;
+        }
+        const idsParam = selectedIds.join(",");
+        window.location.href = `/api/store/checkout-ui/?ids=${idsParam}`;
+      });
+
+      // Make entire card clickable except checkbox and remove button
       document.querySelectorAll(".product-card").forEach(card => {
-        card.addEventListener("click", function () {
+        card.addEventListener("click", function (e) {
+          if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
           const url = this.getAttribute("data-url");
           window.location.href = url;
         });
@@ -120,6 +135,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 });
+
 </script>
 {% endblock %}
-

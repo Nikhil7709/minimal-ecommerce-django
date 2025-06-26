@@ -1,16 +1,15 @@
 from django.urls import path
 from store.views import (
     AddToCartAPIView,
-    OrderHistoryAPIView,
     PlaceOrderAPIView,
     ProductDetailAPIView,
     ProductListAPIView,
     ProductUpdateAPIView,
     RegisterAPIView,
     LoginAPIView,
-    # LogoutView,
     ProductCreateAPIView,
     ProductDeleteAPIView,
+    SelectiveCheckoutAPIView,
     ViewCartAPIView,
     RemoveFromCartAPIView,
     CreateCategoryAPIView,
@@ -18,6 +17,8 @@ from store.views import (
     CategoryUpdateAPIView,
     CategoryDeleteAPIView,
     logout_user,
+    OrderCheckoutAPIView,
+    OrderHistoryAPIView,
 )
 from django.views.generic import TemplateView
 
@@ -46,13 +47,17 @@ urlpatterns = [
     path('admin/category/delete/<int:pk>/', CategoryDeleteAPIView.as_view(), name='admin-category-delete'),
 
     path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
+    path('orders/checkout/', OrderCheckoutAPIView.as_view(), name='order-checkout'),
+    path('orders/checkout/selected/', SelectiveCheckoutAPIView.as_view(), name='selective-checkout'),
+    path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
 
-
+    # UI paths
     path('register-ui/', TemplateView.as_view(template_name='registration.html'), name='register-ui'),
     path('login-ui/', TemplateView.as_view(template_name='login.html'), name='login-ui'),
     path('home/', TemplateView.as_view(template_name='home.html'), name='home'),
     path('product-ui/', TemplateView.as_view(template_name='product_detail.html'), name='product-ui'),
     path('cart-ui/', TemplateView.as_view(template_name='cart.html'), name='cart-ui'),
+    path('checkout-ui/', TemplateView.as_view(template_name="checkout.html"), name="checkout-ui"),
 
 
 ]
