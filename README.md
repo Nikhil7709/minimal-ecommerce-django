@@ -52,12 +52,12 @@ DB_PORT=5432
 
 3. **Create a superuser:**
     ```
-    pipenv run python manage.py createsuperuser
+    python manage.py createsuperuser
     ```
 
 4. **Run the development server:**
     ```
-    pipenv run python manage.py runserver
+    python manage.py runserver
     ```
 
 5. **Access the app:**
