@@ -21,7 +21,7 @@ from store.views import (
     OrderHistoryAPIView,
 )
 from django.views.generic import TemplateView
-
+from django.views.generic.base import RedirectView
 
 
 urlpatterns = [
@@ -30,7 +30,7 @@ urlpatterns = [
     path('logout/', logout_user, name='logout'),
 
     path('create/', ProductCreateAPIView.as_view(), name='product-create'),
-    path('', ProductListAPIView.as_view(), name='product-list'),
+    path('product-list/', ProductListAPIView.as_view(), name='product-list'),
     path('<int:pk>/', ProductDetailAPIView.as_view(), name='product-detail'),
     path('product/<int:pk>/update/', ProductUpdateAPIView.as_view(), name='update-product'),
     path('products/<int:pk>/delete/', ProductDeleteAPIView.as_view(), name='product-delete'),
@@ -50,6 +50,8 @@ urlpatterns = [
     path('orders/checkout/', OrderCheckoutAPIView.as_view(), name='order-checkout'),
     path('orders/checkout/selected/', SelectiveCheckoutAPIView.as_view(), name='selective-checkout'),
     path('orders/history/', OrderHistoryAPIView.as_view(), name='order-history'),
+
+    path('', RedirectView.as_view(pattern_name='login-ui', permanent=False)),
 
     # UI paths
     path('register-ui/', TemplateView.as_view(template_name='registration.html'), name='register-ui'),
