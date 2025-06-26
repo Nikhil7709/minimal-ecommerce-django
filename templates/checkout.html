@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout Summary | MyShop{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3 class="mb-4">Checkout Summary</h3>
+  <div id="checkout-summary" class="row"></div>
+
+  <div class="text-end mt-4">
+    <h5 id="total-amount">Total: ₹0.00</h5>
+    <button id="place-order-btn" class="btn btn-success">
+      <i class="fas fa-credit-card"></i> Place Order
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  const token = localStorage.getItem("token");
+  if (!token) return window.location.href = "/api/store/login-ui/";
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const productIds = urlParams.get("ids");
+  if (!productIds) return alert("No products selected.");
+
+  const ids = productIds.split(",").map(id => parseInt(id));
+  const response = await fetch("/api/store/cart/", {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  const result = await response.json();
+  const items = result.data.cart.filter(item => ids.includes(item.product_id));
+  const container = document.getElementById("checkout-summary");
+
+  let total = 0;
+  items.forEach(item => {
+    total += item.total;
+
+    container.innerHTML += `
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5>${item.product}</h5>
+            <p>Price: ₹${item.price}</p>
+            <p>Quantity: ${item.quantity}</p>
+            <p>Total: ₹${item.total}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("total-amount").innerText = `Total: ₹${total.toFixed(2)}`;
+
+  document.getElementById("place-order-btn").addEventListener("click", async function () {
+    const res = await fetch("/api/store/orders/checkout/selected/", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ product_ids: ids })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Order placed successfully!");
+      window.location.href = "/api/store/confirmation-ui/";
+    } else {
+      alert(data.message || "Checkout failed.");
+    }
+  });
+});
+</script>
+{% endblock %}

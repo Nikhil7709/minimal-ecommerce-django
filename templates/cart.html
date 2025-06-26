@@ -25,7 +25,6 @@
 
 function removeFromCart(productId) {
   const token = localStorage.getItem("token");
-  console.log("Removing product ID:", productId);
 
   fetch(`/api/store/cart/remove/${productId}/`, {
     method: 'DELETE',
@@ -61,114 +60,75 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch cart items");
-      }
+      if (!response.ok) throw new Error("Failed to fetch cart items");
 
       const result = await response.json();
+      const items = result.data.cart;
       const cartContainer = document.getElementById("cart-container");
       const emptyCart = document.getElementById("empty-cart");
 
       cartContainer.innerHTML = '';
-
-      const items = result.data.cart;
-
       if (items.length === 0) {
         emptyCart.style.display = 'block';
         return;
       }
 
-      items.forEach((item) => {
-        const card = document.createElement("div");
-        card.className = "col-md-6 mb-4";
+      emptyCart.style.display = 'none';
 
+      items.forEach((item) => {
         const imageUrl = item.image?.startsWith("http") || item.image?.startsWith("/media/")
           ? item.image
           : `/media/${item.image}`;
-
         const productDetailUrl = `/api/store/product-ui/?id=${item.product_id}`;
 
+        const card = document.createElement("div");
+        card.className = "col-md-6 mb-4";
         card.innerHTML = `
-        <div class="card h-100 shadow-sm product-card" data-url="${productDetailUrl}" style="cursor: pointer;">
-          <div class="row g-0 h-100">
-            <div class="col-1 d-flex align-items-start p-2">
-              <input type="checkbox" class="form-check-input cart-checkbox" value="${item.product_id}">
-            </div>
-            <div class="col-7">
-              <div class="card-body d-flex flex-column h-100">
-                <h5 class="card-title">${item.product}</h5>
-                <p class="card-text mb-1">Price: ₹${item.price}</p>
-                <p class="card-text mb-1">Quantity: <strong>${item.quantity}</strong></p>
-                <p class="card-text fw-bold">Total: ₹${item.total}</p>
-                <button class="btn btn-danger btn-sm mt-auto remove-btn" onclick="event.stopPropagation(); removeFromCart(${item.product_id})">
-                  <i class="fas fa-trash"></i> Remove
-                </button>
+          <div class="card h-100 shadow-sm product-card" data-url="${productDetailUrl}" style="cursor: pointer;">
+            <div class="row g-0 h-100">
+              <div class="col-1 d-flex align-items-start p-2">
+                <input type="checkbox" class="form-check-input cart-checkbox" value="${item.product_id}">
+              </div>
+              <div class="col-7">
+                <div class="card-body d-flex flex-column h-100">
+                  <h5 class="card-title">${item.product}</h5>
+                  <p class="card-text mb-1">Price: ₹${item.price}</p>
+                  <p class="card-text mb-1">Quantity: <strong>${item.quantity}</strong></p>
+                  <p class="card-text fw-bold">Total: ₹${item.total}</p>
+                  <button class="btn btn-danger btn-sm mt-auto remove-btn" onclick="event.stopPropagation(); removeFromCart(${item.product_id})">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </div>
+              </div>
+              <div class="col-4 d-flex align-items-center p-2">
+                <img src="${imageUrl}" class="img-fluid rounded" alt="${item.product}" style="max-height: 120px; object-fit: contain;">
               </div>
             </div>
-            <div class="col-4 d-flex align-items-center p-2">
-              <img src="${imageUrl}" class="img-fluid rounded" alt="${item.product}" style="max-height: 120px; object-fit: contain;">
-            </div>
           </div>
-        </div>
-      `;
-
+        `;
         cartContainer.appendChild(card);
       });
 
-      document.getElementById("checkout-button").addEventListener("click", async function () {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          window.location.href = "/api/store/login-ui/";
-          return;
-        }
-
+      // Checkout Button Logic
+      document.getElementById("checkout-button").addEventListener("click", function () {
         const selectedCheckboxes = document.querySelectorAll(".cart-checkbox:checked");
         const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
-
-        // We can remove this condition if we want to allow checkout with no items selected
-        // but it might be better UX to alert the user
-        // if (selectedIds.length === 0) {
-        //   alert("Please select at least one item to checkout.");
-        //   return;
-  
-        try {
-          const response = await fetch("/api/store/orders/checkout/selected/", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ product_ids: selectedIds })
-          });
-
-          const result = await response.json();
-
-          if (!result.success) {
-            alert(result.message || "Checkout failed");
-            return;
-          }
-
-          // alert("Selected items checked out successfully!");
-          window.location.href = "/api/store/home/";  // Redirect as needed
-
-        } catch (error) {
-          console.error("Checkout error:", error);
-          // alert("Something went wrong during checkout.");
+        if (selectedIds.length === 0) {
+          alert("Please select at least one item to checkout.");
+          return;
         }
+        const idsParam = selectedIds.join(",");
+        window.location.href = `/api/store/checkout-ui/?ids=${idsParam}`;
       });
 
-      // 🔗 Make entire card clickable (except Remove button)
+      // Make entire card clickable except checkbox and remove button
       document.querySelectorAll(".product-card").forEach(card => {
         card.addEventListener("click", function (e) {
-          if (e.target.tagName === 'INPUT' || e.target.classList.contains('remove-btn') || e.target.closest('button')) {
-            return;
-          }
+          if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
           const url = this.getAttribute("data-url");
           window.location.href = url;
         });
       });
-
-      emptyCart.style.display = 'none';
 
     } catch (err) {
       console.error("Error fetching cart items:", err);
@@ -176,39 +136,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// Handle full cart checkout
-document.getElementById("checkout-button").addEventListener("click", async function () {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    window.location.href = "/api/store/login-ui/";
-    return;
-  }
-
-  try {
-    const response = await fetch("/api/store/orders/checkout/", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    });
-
-    const result = await response.json();
-
-    if (!result.success) {
-      alert(result.message || "Checkout failed");
-      return;
-    }
-
-    // alert("Order placed successfully!");
-    window.location.href = "/api/store/home/";  // Redirect to order history or summary page
-
-  } catch (error) {
-    console.error("Checkout error:", error);
-    alert("Something went wrong during checkout.");
-  }
-});
-
 </script>
 {% endblock %}
-
