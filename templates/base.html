@@ -66,7 +66,7 @@
   function handleHomeClick() {
     const token = localStorage.getItem("token");
     if (token) {
-      window.location.href = "/api/store/home/";
+      window.location.href = "/home/";
     } else {
       alert("Please login first");
       window.location.href = "/api/store/login-ui/";
